@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alkaranta — Alma & Orden</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8D5A0;
+    --gold-dark: #8B6914;
+    --olive: #4A5E3A;
+    --olive-light: #6B7F5B;
+    --cream: #F5EDD6;
+    --cream-dark: #EAD9B0;
+    --brown: #6B4A1A;
+    --white: #FFFFFF;
+    --text: #2C2A1E;
+    --text-muted: #7A7260;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    background: var(--olive);
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--gold); border: 2px solid var(--gold-light);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px; color: var(--olive);
+  }
+  .nav-titles .brand-name { color: var(--cream); font-size: 15px; font-weight: 600; letter-spacing: 1px; }
+  .nav-titles .brand-sub { color: var(--gold-light); font-size: 11px; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab {
+    background: transparent; border: none;
+    color: var(--gold-light); padding: 8px 16px;
+    border-radius: var(--radius-sm); font-size: 13px;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .nav-tab:hover { background: rgba(255,255,255,0.1); color: var(--cream); }
+  .nav-tab.active { background: var(--gold); color: var(--olive); font-weight: 600; }
+  .hamburger { display: none; background: transparent; border: none; color: var(--cream); font-size: 24px; cursor: pointer; }
+
+  /* ── LAYOUT ── */
+  main { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--white); border-radius: var(--radius);
+    border: 0.5px solid var(--cream-dark); padding: 1.25rem; margin-bottom: 1rem;
+  }
+  .card-title {
+    font-size: 14px; font-weight: 600; color: var(--olive);
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+  }
+  .card-title i { color: var(--gold-dark); font-size: 18px; }
+
+  /* ── GRIDS ── */
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+
+  /* ── METRICS ── */
+  .metric {
+    background: var(--white); border-radius: var(--radius-sm);
+    padding: 1rem; border: 0.5px solid var(--cream-dark); text-align: center;
+  }
+  .metric-val { font-size: 26px; font-weight: 600; color: var(--olive); }
+  .metric-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .metric-sub { font-size: 11px; color: var(--gold-dark); margin-top: 2px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    border: 0.5px solid var(--gold-dark); background: transparent;
+    color: var(--olive); padding: 9px 20px; border-radius: var(--radius-sm);
+    font-size: 13px; cursor: pointer; transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { background: var(--gold); color: var(--white); border-color: var(--gold); }
+  .btn-primary { background: var(--olive); color: var(--cream); border-color: var(--olive); }
+  .btn-primary:hover { background: var(--gold-dark); border-color: var(--gold-dark); color: var(--white); }
+  .btn-sm { padding: 5px 14px; font-size: 12px; }
+
+  /* ── WELCOME ── */
+  .welcome-banner {
+    background: var(--olive); border-radius: var(--radius);
+    padding: 1.5rem; margin-bottom: 1rem; color: var(--cream);
+    position: relative; overflow: hidden;
+  }
+  .welcome-banner::after {
+    content: 'A'; position: absolute; right: 1.5rem; top: -10px;
+    font-size: 100px; color: rgba(201,168,76,0.12); font-weight: 700;
+    pointer-events: none;
+  }
+  .welcome-name { font-size: 22px; font-weight: 600; color: var(--gold-light); }
+  .welcome-sub { font-size: 13px; margin-top: 4px; opacity: 0.85; }
+  .welcome-quote {
+    font-size: 12px; margin-top: 14px; font-style: italic;
+    border-left: 2px solid var(--gold); padding-left: 10px; opacity: 0.9;
+  }
+
+  /* ── PROGRESS BARS ── */
+  .bar-bg { background: var(--cream-dark); border-radius: 4px; height: 8px; margin-top: 4px; }
+  .bar-fill { height: 8px; border-radius: 4px; background: var(--gold-dark); transition: width 0.5s; }
+  .bar-fill.green { background: var(--olive); }
+  .bar-fill.red { background: #C0392B; }
+
+  /* ── FINANCE ── */
+  .finance-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 0.5px solid var(--cream-dark); font-size: 13px;
+  }
+  .finance-row:last-child { border-bottom: none; }
+  .cat-tag {
+    display: inline-block; padding: 2px 10px; border-radius: 20px;
+    font-size: 11px; background: var(--cream); color: var(--brown);
+    white-space: nowrap;
+  }
+  .income { color: var(--olive); font-weight: 600; }
+  .expense { color: #C0392B; font-weight: 600; }
+  .total-row {
+    display: flex; justify-content: space-between; padding: 12px 0 0;
+    border-top: 1.5px solid var(--gold-light); margin-top: 8px;
+  }
+  .total-label { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+  .total-val { font-size: 18px; font-weight: 600; }
+
+  /* ── SESSIONS ── */
+  .session-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--cream-dark); }
+  .session-item:last-child { border-bottom: none; }
+  .session-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); margin-top: 4px; flex-shrink: 0; }
+  .session-dot.done { background: var(--olive); }
+  .session-dot.pending { background: var(--cream-dark); border: 1.5px solid var(--gold-dark); }
+  .session-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .session-date { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; margin-left: 6px; }
+  .badge-done { background: #EAF5E3; color: #3B6D11; }
+  .badge-pending { background: #FDF3DC; color: #855B0B; }
+  .badge-next { background: #E6EFF9; color: #1A4F8A; }
+
+  /* ── FORMS ── */
+  .form-group { margin-bottom: 1rem; }
+  .form-label { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; display: block; font-weight: 500; }
+  input[type=text], input[type=number], input[type=email], select, textarea {
+    width: 100%; padding: 9px 12px;
+    border: 0.5px solid var(--cream-dark); border-radius: var(--radius-sm);
+    font-size: 13px; background: var(--white); color: var(--text);
+    font-family: inherit; transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--gold-dark);
+    box-shadow: 0 0 0 2px rgba(139,105,20,0.1);
+  }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  /* ── WHEEL ── */
+  .wheel-container { display: flex; align-items: flex-start; gap: 2rem; flex-wrap: wrap; }
+  .wheel-sliders { flex: 1; min-width: 220px; }
+  .slider-row { margin-bottom: 12px; }
+  .slider-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .slider-label strong { color: var(--olive); }
+  input[type=range] { width: 100%; accent-color: var(--gold-dark); cursor: pointer; }
+  .wheel-svg-wrap { flex: 0 0 210px; text-align: center; }
+  .wheel-avg { font-size: 13px; color: var(--text-muted); margin-top: 8px; }
+  .wheel-avg strong { color: var(--olive); font-size: 18px; }
+
+  /* ── SUB TABS ── */
+  .sub-tabs { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .sub-tab {
+    background: transparent; border: 0.5px solid var(--cream-dark);
+    color: var(--text-muted); padding: 6px 16px; border-radius: 20px;
+    font-size: 12px; cursor: pointer; transition: all 0.15s;
+  }
+  .sub-tab:hover { border-color: var(--gold); color: var(--gold-dark); }
+  .sub-tab.active { background: var(--gold); border-color: var(--gold); color: var(--white); font-weight: 500; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    background: var(--olive); color: var(--cream);
+    padding: 12px 20px; border-radius: var(--radius-sm);
+    font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: flex; align-items: center; gap: 8px;
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .nav-tabs { display: none; }
+    .nav-tabs.open { display: flex; flex-direction: column; position: absolute; top: 60px; left: 0; right: 0; background: var(--olive); padding: 8px; z-index: 99; }
+    .hamburger { display: block; }
+    .form-row { grid-template-columns: 1fr; }
+    .wheel-container { flex-direction: column; }
+    .wheel-svg-wrap { flex: none; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-logo">A</div>
+    <div class="nav-titles">
+      <div class="brand-name">ALKARANTA</div>
+      <div class="brand-sub">Alma & Orden</div>
+    </div>
+  </a>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" onclick="showPage('inicio', this)">
+      <i class="ti ti-home"></i> Inicio
+    </button>
+    <button class="nav-tab" onclick="showPage('rueda', this)">
+      <i class="ti ti-circle-dotted"></i> Rueda de vida
+    </button>
+    <button class="nav-tab" onclick="showPage('finanzas', this)">
+      <i class="ti ti-wallet"></i> Finanzas
+    </button>
+    <button class="nav-tab" onclick="showPage('sesiones', this)">
+      <i class="ti ti-calendar"></i> Sesiones
+    </button>
+  </div>
+  <button class="hamburger" onclick="toggleMenu()"><i class="ti ti-menu-2"></i></button>
+</nav>
+
+<main>
+
+<!-- ── PÁGINA: INICIO ── -->
+<div id="page-inicio" class="page active">
+  <div class="welcome-banner">
+    <div class="welcome-name">Hola, María 👋</div>
+    <div class="welcome-sub">Semana 8 de tu proceso · Etapa: Claridad & Acción</div>
+    <div class="welcome-quote">"El orden externo comienza con el orden interno." — Alkaranta</div>
+  </div>
+
+  <div class="grid-4">
+    <div class="metric">
+      <div class="metric-val">8</div>
+      <div class="metric-label">Sesiones realizadas</div>
+      <div class="metric-sub">+2 este mes</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val">7.4</div>
+      <div class="metric-label">Bienestar promedio</div>
+      <div class="metric-sub">↑ desde 4.1</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val">3</div>
+      <div class="metric-label">Compromisos activos</div>
+      <div class="metric-sub">1 vence hoy</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val">$12k</div>
+      <div class="metric-label">Ahorro del mes</div>
+      <div class="metric-sub">Meta: $15k</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-bolt"></i> Próximo compromiso</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Vence hoy</div>
+      <div style="font-size:14px;font-weight:500;line-height:1.4;">Registrar 3 gastos hormiga identificados</div>
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" onclick="toast('¡Compromiso marcado como cumplido!')">
+          <i class="ti ti-check"></i> Marcar cumplido
+        </button>
+        <button class="btn btn-sm">Posponer</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-message"></i> Mensaje de Alma</div>
+      <div style="font-size:13px;color:var(--text-muted);line-height:1.6;">
+        Recuerda tu sesión del martes. Llevá anotado:<br>
+        <span style="color:var(--olive);font-weight:500;">¿Qué decisión estuve evitando esta semana?</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-trending-up"></i> Tu evolución — Rueda de la vida</div>
+    <div class="grid-2">
+      <div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;font-weight:500;">Inicio del proceso</div>
+        <div id="evol-inicio"></div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;font-weight:500;">Hoy</div>
+        <div id="evol-hoy"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PÁGINA: RUEDA DE LA VIDA ── -->
+<div id="page-rueda" class="page">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-circle-dotted"></i> Rueda de la vida — diagnóstico holístico</div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.5;">
+      Mové cada slider para calificar del 1 al 10 tu nivel de satisfacción en cada área de tu vida hoy.
+    </p>
+    <div class="wheel-container">
+      <div class="wheel-sliders" id="slidersContainer"></div>
+      <div class="wheel-svg-wrap">
+        <canvas id="wheelCanvas" width="210" height="210"></canvas>
+        <div class="wheel-avg">Promedio general<br><strong id="avgVal">—</strong>/10</div>
+      </div>
+    </div>
+    <div style="margin-top:1.25rem;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="guardarRueda()">
+        <i class="ti ti-device-floppy"></i> Guardar diagnóstico
+      </button>
+    </div>
+  </div>
+
+  <div class="card" id="ruedaGuardadaCard" style="display:none;">
+    <div class="card-title"><i class="ti ti-check"></i> Diagnóstico guardado</div>
+    <div id="ruedaGuardadaText" style="font-size:13px;color:var(--text-muted);line-height:1.8;"></div>
+  </div>
+</div>
+
+<!-- ── PÁGINA: FINANZAS ── -->
+<div id="page-finanzas" class="page">
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="showFinTab('resumen', this)">Resumen</button>
+    <button class="sub-tab" onclick="showFinTab('cargar', this)">Cargar movimiento</button>
+    <button class="sub-tab" onclick="showFinTab('metas', this)">Mis metas</button>
+  </div>
+
+  <!-- Resumen -->
+  <div id="fin-resumen">
+    <div class="grid-3">
+      <div class="metric"><div class="metric-val income">$45,000</div><div class="metric-label">Ingresos del mes</div></div>
+      <div class="metric"><div class="metric-val expense">$33,000</div><div class="metric-label">Gastos del mes</div></div>
+      <div class="metric"><div class="metric-val" style="color:var(--gold-dark)">$12,000</div><div class="metric-label">Diferencia</div><div class="metric-sub">Meta: $15,000</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-pie"></i> Distribución de gastos</div>
+      <div id="gastosChart"></div>
+      <div class="total-row">
+        <span class="total-label">Total gastos</span>
+        <span class="total-val expense">$33,000</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-alert-triangle"></i> Gastos hormiga detectados</div>
+      <div style="font-size:13px;color:var(--text-muted);line-height:1.8;">
+        Café diario · Delivery impulsivo · Suscripciones sin usar<br>
+        <strong style="color:var(--olive);">Impacto mensual: $6,000</strong> — Si los reducís un 50% ahorrarías <strong>$3,000 más por mes</strong>.
+      </div>
+    </div>
+  </div>
+
+  <!-- Cargar movimiento -->
+  <div id="fin-cargar" style="display:none;">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-plus"></i> Registrar movimiento</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select id="movTipo">
+            <option>Ingreso</option>
+            <option>Gasto</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <select id="movCat">
+            <option>Alimentación</option>
+            <option>Transporte</option>
+            <option>Entretenimiento</option>
+            <option>Servicios</option>
+            <option>Gasto hormiga</option>
+            <option>Ahorro</option>
+            <option>Salud</option>
+            <option>Educación</option>
+            <option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Monto ($)</label>
+          <input type="number" id="movMonto" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <input type="text" id="movDesc" placeholder="Ej: almuerzo con compañeras">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="cargarMovimiento()">
+        <i class="ti ti-check"></i> Registrar
+      </button>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-list"></i> Movimientos recientes</div>
+      <div id="movItems">
+        <div class="finance-row">
+          <span class="cat-tag">Ingreso</span>
+          <span style="flex:1;padding:0 1rem;">Consultoría mensual</span>
+          <span class="income">+$45,000</span>
+        </div>
+        <div class="finance-row">
+          <span class="cat-tag">Alimentación</span>
+          <span style="flex:1;padding:0 1rem;">Super semanal</span>
+          <span class="expense">-$2,200</span>
+        </div>
+        <div class="finance-row">
+          <span class="cat-tag">Gasto hormiga</span>
+          <span style="flex:1;padding:0 1rem;">Cafés de la semana</span>
+          <span class="expense">-$480</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metas -->
+  <div id="fin-metas" style="display:none;">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-target"></i> Mis metas financieras</div>
+      <div id="metasContainer"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-plus"></i> Agregar nueva meta</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nombre de la meta</label>
+          <input type="text" id="metaNombre" placeholder="Ej: Vacaciones">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monto objetivo ($)</label>
+          <input type="number" id="metaObjetivo" placeholder="0">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="agregarMeta()">
+        <i class="ti ti-plus"></i> Agregar meta
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PÁGINA: SESIONES ── -->
+<div id="page-sesiones" class="page">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-calendar-event"></i> Próxima sesión</div>
+      <div style="font-size:22px;font-weight:600;color:var(--olive);">Martes 18 de junio</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">17:00 hs · Online · Sesión #9</div>
+      <div style="margin-top:10px;font-size:13px;color:var(--text-muted);">
+        <strong style="color:var(--olive);">Tema:</strong> Creencias limitantes sobre el dinero
+      </div>
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" onclick="toast('¡Asistencia confirmada!')">
+          <i class="ti ti-check"></i> Confirmar
+        </button>
+        <button class="btn btn-sm">Reagendar</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-pencil"></i> Reflexión de hoy</div>
+      <div class="form-group">
+        <textarea id="reflexionInput" placeholder="¿Qué observaste de ti misma esta semana? ¿Qué decisión tomaste o evitaste?"></textarea>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="guardarReflexion()">
+        <i class="ti ti-device-floppy"></i> Guardar
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-history"></i> Historial de sesiones</div>
+    <div id="historialSesiones"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-file-text"></i> Mis compromisos activos</div>
+    <div id="compromisos"></div>
+    <div style="margin-top:12px;">
+      <div class="form-row">
+        <input type="text" id="nuevoCompromiso" placeholder="Escribir nuevo compromiso...">
+        <button class="btn btn-primary btn-sm" onclick="agregarCompromiso()">
+          <i class="ti ti-plus"></i> Agregar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <i class="ti ti-check"></i>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+// ── DATOS ──
+const AREAS = ['Trabajo','Salud','Familia','Dinero','Bienestar','Espiritualidad','Pareja','Crecimiento'];
+const COLORS_WHEEL = ['#C9A84C','#4A5E3A','#8B6914','#6B4A1A','#C9A84C','#4A5E3A','#8B6914','#6B4A1A'];
+let wheelVals = [7,6,8,5,7,6,7,8];
+
+const SESIONES = [
+  { num:8, fecha:'10 jun', tema:'Gestión del tiempo y prioridades', estado:'done' },
+  { num:7, fecha:'3 jun',  tema:'Vínculos y comunicación asertiva', estado:'done' },
+  { num:6, fecha:'27 may', tema:'Identidad y valores personales', estado:'done' },
+  { num:9, fecha:'18 jun', tema:'Creencias sobre el dinero', estado:'next' },
+];
+
+let compromisos = [
+  { texto:'Registrar 3 gastos hormiga', vence:'Hoy', done:false },
+  { texto:'Actualizar rueda de la vida', vence:'20 jun', done:false },
+  { texto:'Leer cap. 2 de "El dinero sí existe"', vence:'25 jun', done:false },
+];
+
+let metas = [
+  { nombre:'Fondo de emergencia', objetivo:50000, actual:18000 },
+  { nombre:'Vacaciones familiares', objetivo:30000, actual:12000 },
+  { nombre:'Reducir deudas', objetivo:20000, actual:8000 },
+  { nombre:'Ahorro mensual', objetivo:15000, actual:12000 },
+];
+
+const GASTOS = [
+  { cat:'Alimentación', monto:9000, pct:27, tipo:'green' },
+  { cat:'Transporte', monto:4500, pct:13, tipo:'green' },
+  { cat:'Entretenimiento', monto:8000, pct:24, tipo:'red' },
+  { cat:'Servicios', monto:5500, pct:16, tipo:'green' },
+  { cat:'Gastos hormiga', monto:6000, pct:18, tipo:'red' },
+];
+
+const INICIO_VALS = [3,4,2,2,3,3,4,3];
+const HOY_VALS = [7,6,8,5,7,6,7,8];
+
+// ── NAVEGACIÓN ──
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.getElementById('navTabs').classList.remove('open');
+}
+
+function toggleMenu() {
+  document.getElementById('navTabs').classList.toggle('open');
+}
+
+function showFinTab(id, btn) {
+  ['resumen','cargar','metas'].forEach(t => {
+    document.getElementById('fin-' + t).style.display = 'none';
+  });
+  document.getElementById('fin-' + id).style.display = 'block';
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── TOAST ──
+function toast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── RUEDA DE LA VIDA ──
+function buildSliders() {
+  const c = document.getElementById('slidersContainer');
+  c.innerHTML = AREAS.map((a, i) => `
+    <div class="slider-row">
+      <div class="slider-label">${a} <strong id="val-${i}">${wheelVals[i]}</strong>/10</div>
+      <input type="range" min="1" max="10" step="1" value="${wheelVals[i]}"
+        oninput="updateWheel(${i}, this.value)">
+    </div>`).join('');
+  drawWheel();
+}
+
+function updateWheel(i, v) {
+  wheelVals[i] = parseInt(v);
+  document.getElementById('val-' + i).textContent = v;
+  drawWheel();
+}
+
+function drawWheel() {
+  const canvas = document.getElementById('wheelCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = 105, cy = 105, R = 90, n = AREAS.length;
+  ctx.clearRect(0, 0, 210, 210);
+
+  // Anillos de referencia
+  [2,4,6,8,10].forEach(v => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, (v/10)*R, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(74,94,58,0.1)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  });
+
+  // Líneas de ejes
+  for (let i = 0; i < n; i++) {
+    const a = (i/n)*Math.PI*2 - Math.PI/2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a)*R, cy + Math.sin(a)*R);
+    ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+
+  // Sectores rellenos
+  for (let i = 0; i < n; i++) {
+    const a0 = (i/n)*Math.PI*2 - Math.PI/2;
+    const a1 = ((i+1)/n)*Math.PI*2 - Math.PI/2;
+    const r = (wheelVals[i]/10)*R;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, a0, a1);
+    ctx.closePath();
+    ctx.fillStyle = COLORS_WHEEL[i % COLORS_WHEEL.length] + '55';
+    ctx.strokeStyle = COLORS_WHEEL[i % COLORS_WHEEL.length];
+    ctx.lineWidth = 1.5;
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  // Labels
+  ctx.font = '10px -apple-system, sans-serif';
+  ctx.fillStyle = '#4A5E3A';
+  ctx.textAlign = 'center';
+  for (let i = 0; i < n; i++) {
+    const a = (i/n)*Math.PI*2 - Math.PI/2;
+    const lx = cx + Math.cos(a)*(R+12);
+    const ly = cy + Math.sin(a)*(R+12);
+    ctx.fillText(AREAS[i].slice(0,3), lx, ly + 3);
+  }
+
+  const avg = (wheelVals.reduce((a,b)=>a+b,0)/n).toFixed(1);
+  document.getElementById('avgVal').textContent = avg;
+}
+
+function guardarRueda() {
+  const avg = (wheelVals.reduce((a,b)=>a+b,0)/AREAS.length).toFixed(1);
+  const card = document.getElementById('ruedaGuardadaCard');
+  const txt = document.getElementById('ruedaGuardadaText');
+  txt.innerHTML = `<strong>Promedio general: ${avg}/10</strong><br><br>` +
+    AREAS.map((a,i) => `${a}: <strong>${wheelVals[i]}/10</strong>`).join(' &nbsp;·&nbsp; ');
+  card.style.display = 'block';
+  toast('¡Diagnóstico guardado exitosamente!');
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── FINANZAS ──
+function buildGastos() {
+  const el = document.getElementById('gastosChart');
+  if (!el) return;
+  el.innerHTML = GASTOS.map(g => `
+    <div class="finance-row">
+      <span class="cat-tag">${g.cat}</span>
+      <div style="flex:1;padding:0 1rem;">
+        <div class="bar-bg"><div class="bar-fill ${g.tipo}" style="width:${g.pct}%"></div></div>
+      </div>
+      <span style="font-size:13px;font-weight:500;min-width:60px;text-align:right;">$${g.monto.toLocaleString()}</span>
+    </div>`).join('');
+}
+
+function cargarMovimiento() {
+  const tipo = document.getElementById('movTipo').value;
+  const cat = document.getElementById('movCat').value;
+  const monto = parseInt(document.getElementById('movMonto').value);
+  const desc = document.getElementById('movDesc').value;
+  if (!monto || monto <= 0) { toast('Ingresá un monto válido'); return; }
+
+  const list = document.getElementById('movItems');
+  const sign = tipo === 'Ingreso' ? '+' : '-';
+  const cls = tipo === 'Ingreso' ? 'income' : 'expense';
+  const row = document.createElement('div');
+  row.className = 'finance-row';
+  row.innerHTML = `
+    <span class="cat-tag">${cat}</span>
+    <span style="flex:1;padding:0 1rem;">${desc || cat}</span>
+    <span class="${cls}">${sign}$${monto.toLocaleString()}</span>`;
+  list.insertBefore(row, list.firstChild);
+  document.getElementById('movMonto').value = '';
+  document.getElementById('movDesc').value = '';
+  toast('Movimiento registrado');
+}
+
+function buildMetas() {
+  const el = document.getElementById('metasContainer');
+  if (!el) return;
+  el.innerHTML = metas.map((m,i) => {
+    const pct = Math.min(100, Math.round((m.actual/m.objetivo)*100));
+    const tipo = pct >= 70 ? 'green' : pct >= 40 ? '' : 'red';
+    return `
+      <div style="margin-bottom:18px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
+          <span style="font-weight:500;">${m.nombre}</span>
+          <span style="color:var(--text-muted);">$${m.actual.toLocaleString()} / $${m.objetivo.toLocaleString()}</span>
+        </div>
+        <div class="bar-bg"><div class="bar-fill ${tipo}" style="width:${pct}%"></div></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">${pct}% alcanzado</div>
+      </div>`;
+  }).join('');
+}
+
+function agregarMeta() {
+  const nombre = document.getElementById('metaNombre').value.trim();
+  const obj = parseInt(document.getElementById('metaObjetivo').value);
+  if (!nombre || !obj) { toast('Completá nombre y monto'); return; }
+  metas.push({ nombre, objetivo: obj, actual: 0 });
+  buildMetas();
+  document.getElementById('metaNombre').value = '';
+  document.getElementById('metaObjetivo').value = '';
+  toast('Meta agregada');
+}
+
+// ── SESIONES ──
+function buildSesiones() {
+  const el = document.getElementById('historialSesiones');
+  if (!el) return;
+  el.innerHTML = SESIONES.sort((a,b) => b.num - a.num).map(s => `
+    <div class="session-item">
+      <div class="session-dot ${s.estado}"></div>
+      <div>
+        <div class="session-title">
+          Sesión #${s.num}
+          <span class="badge badge-${s.estado==='done'?'done':s.estado==='next'?'next':'pending'}">
+            ${s.estado==='done'?'completada':s.estado==='next'?'próxima':'pendiente'}
+          </span>
+        </div>
+        <div class="session-date">${s.fecha} · ${s.tema}</div>
+      </div>
+    </div>`).join('');
+}
+
+function buildCompromisos() {
+  const el = document.getElementById('compromisos');
+  if (!el) return;
+  el.innerHTML = compromisos.map((c, i) => `
+    <div class="finance-row" id="comp-${i}">
+      <input type="checkbox" ${c.done?'checked':''} onchange="toggleComp(${i})"
+        style="width:16px;height:16px;accent-color:var(--olive);cursor:pointer;flex-shrink:0;">
+      <span style="flex:1;padding:0 1rem;font-size:13px;${c.done?'text-decoration:line-through;color:var(--text-muted)':''}">${c.texto}</span>
+      <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">${c.vence}</span>
+    </div>`).join('');
+}
+
+function toggleComp(i) {
+  compromisos[i].done = !compromisos[i].done;
+  buildCompromisos();
+  if (compromisos[i].done) toast('¡Compromiso cumplido! Bien hecho 🌿');
+}
+
+function agregarCompromiso() {
+  const txt = document.getElementById('nuevoCompromiso').value.trim();
+  if (!txt) return;
+  compromisos.push({ texto: txt, vence: 'Próximamente', done: false });
+  buildCompromisos();
+  document.getElementById('nuevoCompromiso').value = '';
+  toast('Compromiso agregado');
+}
+
+function guardarReflexion() {
+  const v = document.getElementById('reflexionInput').value.trim();
+  if (!v) { toast('Escribí tu reflexión antes de guardar'); return; }
+  document.getElementById('reflexionInput').value = '';
+  toast('Reflexión guardada. ¡Gracias por tomarte este espacio!');
+}
+
+// ── EVOLUCIÓN (inicio) ──
+function buildEvolucion() {
+  const areas6 = ['Trabajo','Salud','Familia','Dinero','Bienestar','Crecimiento'];
+  const ini6 = [3,4,2,2,3,3];
+  const hoy6 = [7,6,8,5,7,8];
+
+  const makeBar = (areas, vals, tipo) =>
+    areas.map((a,i) => `
+      <div style="margin-bottom:8px;">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">${a}</div>
+        <div class="bar-bg"><div class="bar-fill ${tipo}" style="width:${vals[i]*10}%"></div></div>
+      </div>`).join('');
+
+  const eInicio = document.getElementById('evol-inicio');
+  const eHoy = document.getElementById('evol-hoy');
+  if (eInicio) eInicio.innerHTML = makeBar(areas6, ini6, '');
+  if (eHoy) eHoy.innerHTML = makeBar(areas6, hoy6, 'green');
+}
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', () => {
+  buildSliders();
+  buildGastos();
+  buildMetas();
+  buildSesiones();
+  buildCompromisos();
+  buildEvolucion();
+});
+</script>
+</body>
+</html>
