@@ -47,6 +47,7 @@ function actualizarCategorias() {
 
 function guardarMovimiento() {
 
+    const fechaInput = document.getElementById("fecha").value;
     const tipo = document.getElementById("tipo").value;
     const categoria = document.getElementById("categoria").value;
     const monto = Number(document.getElementById("monto").value);
@@ -58,7 +59,7 @@ function guardarMovimiento() {
     }
 
     const movimiento = {
-        fecha: new Date().toLocaleDateString("es-AR"),
+        fecha: fechaInput || new Date().toLocaleDateString("es-AR"),
         tipo,
         categoria,
         monto,
@@ -78,6 +79,22 @@ function guardarMovimiento() {
     renderizar();
 }
 
+function eliminarMovimiento(indice){
+
+    if(!confirm("¿Eliminar movimiento?")){
+        return;
+    }
+
+    movimientos.splice(indice,1);
+
+    localStorage.setItem(
+        "movimientos",
+        JSON.stringify(movimientos)
+    );
+
+    renderizar();
+}
+
 function renderizar() {
 
     const tabla = document.getElementById("tablaMovimientos");
@@ -87,7 +104,7 @@ function renderizar() {
     let ingresos = 0;
     let egresos = 0;
 
-    movimientos.forEach(mov => {
+    movimientos.forEach((mov, indice) => {
 
         if (mov.tipo === "Ingreso") {
             ingresos += mov.monto;
@@ -101,6 +118,11 @@ function renderizar() {
                 <td>${mov.tipo}</td>
                 <td>${mov.categoria}</td>
                 <td>$${mov.monto.toLocaleString()}</td>
+                <td>
+                    <button onclick="eliminarMovimiento(${indice})">
+                        🗑️
+                    </button>
+                </td>
             </tr>
         `;
     });
