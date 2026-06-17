@@ -1,0 +1,15 @@
+{
+  "name": "Alkaranta Silver",
+  "short_name": "Alkaranta",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#E5E4E2",
+  "theme_color": "#1A1A1A",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2953/2953363.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
