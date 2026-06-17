@@ -6,6 +6,29 @@
   <title>Alkaranta Finanzas</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
+  <link rel="apple-touch-icon" href="icono-192.png">
+  <style>
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .app-header img.logo-coin {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35));
+    }
+    .app-header h1 {
+      margin: 0;
+    }
+    .app-header p {
+      margin: 4px 0 0 0;
+    }
+  </style>
 </head>
 <body>
 
@@ -15,9 +38,12 @@
       <button id="btnLaboral" onclick="cambiarModo('laboral')" style="flex: 1; padding: 10px; background-color: #bdc3c7; color: white; border: none; border-radius: 5px;">Laboral</button>
     </div>
 
-    <header>
-      <h1>💰 Alkaranta Finanzas</h1>
-      <p>Control inteligente de ingresos y egresos</p>
+    <header class="app-header">
+      <img src="icono-192.png" alt="Logo Alkaranta Finanzas" class="logo-coin">
+      <div>
+        <h1>Alkaranta Finanzas</h1>
+        <p>Control inteligente de ingresos y egresos</p>
+      </div>
     </header>
 
     <section class="cards">
