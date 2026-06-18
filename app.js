@@ -20,8 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
   renderPresupuesto();
   renderMetas();
 
-  // FIX: los listeners de overlay se registran aquí, dentro de DOMContentLoaded,
-  // para garantizar que el DOM esté listo cuando se ejecutan.
   document.querySelectorAll(".overlay").forEach(m => {
     m.addEventListener("click", e => { if (e.target === m) cerrarModales(); });
   });
@@ -113,9 +111,6 @@ function editarMovimiento(i) {
 
 function eliminarMovimiento(i) {
   if (!confirm("¿Eliminar este movimiento?")) return;
-
-  // FIX: si se estaba editando un elemento posterior al eliminado,
-  // el índice queda desfasado — hay que corregirlo.
   if (editandoIdx !== null) {
     if (editandoIdx === i) {
       cancelarEdicion();
@@ -123,7 +118,6 @@ function eliminarMovimiento(i) {
       editandoIdx--;
     }
   }
-
   movimientos.splice(i, 1);
   guardarLS(); poblarFiltroMeses(); renderizar();
 }
@@ -429,9 +423,9 @@ function renderMetas() {
 function cerrarModales() {
   document.querySelectorAll(".overlay").forEach(m => {
     m.classList.remove("open");
-    m.style.paddingBottom = '0px';
+    m.style.top    = '';
+    m.style.height = '';
   });
-  document.querySelectorAll(".modal-sheet").forEach(s => s.style.transform = 'translateY(0)');
 }
 
 // ── UTILS ──
