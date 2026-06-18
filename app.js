@@ -428,6 +428,8 @@ function renderMetas() {
 // ── MODALES ──
 function cerrarModales() {
   document.querySelectorAll(".overlay").forEach(m => m.classList.remove("open"));
+  // Resetear posición del sheet al cerrar
+  document.querySelectorAll(".modal-sheet").forEach(s => s.style.transform = 'translateY(0)');
 }
 
 // ── UTILS ──
