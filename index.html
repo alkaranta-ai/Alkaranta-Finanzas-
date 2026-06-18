@@ -6,9 +6,17 @@
   <title>Alkaranta Finanzas</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="manifest" href="manifest.json">
+
+  <!-- Favicon navegador (SVG funciona bien aquí) -->
   <link rel="icon" type="image/svg+xml" href="wallet-icon-512.svg">
-  <link rel="icon" type="image/svg+xml" sizes="192x192" href="wallet-icon-192.svg">
-  <link rel="apple-touch-icon" sizes="192x192" href="wallet-icon-192.svg">
+
+  <!-- iOS: DEBE ser PNG para mostrar el ícono al instalar -->
+  <link rel="apple-touch-icon" sizes="192x192" href="icono-192.png">
+
+  <!-- Android PWA: también PNG, referenciado desde manifest.json -->
+  <link rel="icon" type="image/png" sizes="512x512" href="icono-512.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
+
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Alkaranta">
@@ -44,7 +52,8 @@
     </div>
 
     <header class="app-header">
-      <img src="wallet-icon-192.svg" alt="Logo Alkaranta Finanzas" class="logo-coin">
+      <!-- Dentro de la app usamos el PNG también, más compatible -->
+      <img src="icono-192.png" alt="Logo Alkaranta Finanzas" class="logo-coin">
       <div>
         <h1>Alkaranta Finanzas</h1>
         <p>Control inteligente de ingresos y egresos</p>
