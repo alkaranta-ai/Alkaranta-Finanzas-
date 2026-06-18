@@ -2,159 +2,565 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Alkaranta Finanzas</title>
-  <link rel="stylesheet" href="styles.css">
   <link rel="manifest" href="manifest.json">
-
-  <!-- Favicon navegador (SVG funciona bien aquí) -->
   <link rel="icon" type="image/svg+xml" href="wallet-icon-512.svg">
-
-  <!-- iOS: DEBE ser PNG para mostrar el ícono al instalar -->
   <link rel="apple-touch-icon" sizes="192x192" href="icono-192.png">
-
-  <!-- Android PWA: también PNG, referenciado desde manifest.json -->
-  <link rel="icon" type="image/png" sizes="512x512" href="icono-512.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
-
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Alkaranta">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    .app-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      justify-content: center;
-      flex-direction: column;
+    :root {
+      --navy:       #0F1C2E;
+      --navy-mid:   #162236;
+      --navy-card:  #1C2D42;
+      --navy-line:  #243348;
+      --accent:     #3B82F6;
+      --accent-dim: #1D4ED8;
+      --green:      #10B981;
+      --red:        #EF4444;
+      --amber:      #F59E0B;
+      --text-1:     #F0F4F8;
+      --text-2:     #94A3B8;
+      --text-3:     #64748B;
+      --radius-sm:  8px;
+      --radius-md:  14px;
+      --radius-lg:  20px;
+      --shadow:     0 4px 24px rgba(0,0,0,0.35);
     }
-    .app-header img.logo-coin {
-      width: 72px;
-      height: 72px;
-      object-fit: cover;
-      border-radius: 16px;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--navy);
+      color: var(--text-1);
+      min-height: 100vh;
+      padding-bottom: 100px;
     }
-    .app-header h1 {
-      margin: 0;
+
+    /* ── HEADER ── */
+    .top-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(15,28,46,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--navy-line);
+      padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .app-header p {
-      margin: 4px 0 0 0;
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--accent); display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .brand-name { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 1.15rem; letter-spacing: -0.3px; }
+    .brand-name span { color: var(--accent); }
+
+    /* ── MODO TABS ── */
+    .mode-tabs {
+      display: flex; gap: 4px;
+      background: var(--navy-card);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+    }
+    .mode-tab {
+      padding: 6px 16px; border-radius: 6px; border: none; cursor: pointer;
+      font-size: 0.8rem; font-weight: 600; font-family: 'Inter', sans-serif;
+      transition: all .2s; color: var(--text-2); background: transparent;
+    }
+    .mode-tab.active { background: var(--accent); color: #fff; }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 680px; margin: 0 auto; padding: 24px 16px; }
+
+    /* ── CARDS RESUMEN ── */
+    .summary-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;
+    }
+    .summary-card {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-line);
+      border-radius: var(--radius-md);
+      padding: 18px 16px;
+      position: relative; overflow: hidden;
+    }
+    .summary-card.main {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, var(--accent-dim), var(--accent));
+      border-color: transparent;
+    }
+    .summary-card .label {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 8px;
+    }
+    .summary-card.main .label { color: rgba(255,255,255,0.75); }
+    .summary-card .amount {
+      font-family: 'DM Sans', sans-serif; font-size: 2rem; font-weight: 700; line-height: 1;
+    }
+    .summary-card .amount.negative { color: var(--red); }
+    .summary-card.main .amount { font-size: 2.4rem; color: #fff; }
+    .summary-card .sub-label { font-size: 0.78rem; color: var(--text-2); margin-top: 4px; }
+    .card-ing .amount { color: var(--green); }
+    .card-egr .amount { color: var(--red); }
+    .card-accent-line {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    }
+    .card-ing .card-accent-line { background: var(--green); }
+    .card-egr .card-accent-line { background: var(--red); }
+
+    /* ── SECCIÓN ── */
+    .section-title {
+      font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700;
+      color: var(--text-2); letter-spacing: 0.04em; text-transform: uppercase;
+      margin-bottom: 14px; margin-top: 28px;
+    }
+
+    /* ── FORMULARIO ── */
+    .form-card {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-line);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label {
+      display: block; font-size: 0.75rem; font-weight: 600;
+      color: var(--text-2); margin-bottom: 6px; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%; padding: 11px 14px;
+      background: var(--navy-mid); color: var(--text-1);
+      border: 1px solid var(--navy-line); border-radius: var(--radius-sm);
+      font-size: 0.9rem; font-family: 'Inter', sans-serif;
+      transition: border-color .2s;
+      appearance: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus { outline: none; border-color: var(--accent); }
+    .form-group input::placeholder { color: var(--text-3); }
+    .btn-row { display: flex; gap: 10px; margin-top: 4px; }
+    .btn {
+      flex: 1; padding: 12px; border: none; border-radius: var(--radius-sm);
+      font-size: 0.9rem; font-weight: 600; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: all .15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-dim); }
+    .btn-cancel { background: var(--navy-line); color: var(--text-2); display: none; }
+    .btn-cancel:hover { color: var(--text-1); }
+    .date-row { display: flex; gap: 8px; align-items: flex-end; }
+    .date-row .form-group { flex: 1; margin-bottom: 0; }
+    .btn-today {
+      padding: 11px 14px; background: var(--navy-line); color: var(--text-2);
+      border: 1px solid var(--navy-line); border-radius: var(--radius-sm);
+      font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+      font-family: 'Inter', sans-serif; transition: all .15s;
+    }
+    .btn-today:hover { color: var(--text-1); border-color: var(--accent); }
+
+    /* ── FILTROS ── */
+    .filters-row {
+      display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .filters-row select {
+      flex: 1; min-width: 130px; padding: 9px 12px;
+      background: var(--navy-card); color: var(--text-1);
+      border: 1px solid var(--navy-line); border-radius: var(--radius-sm);
+      font-size: 0.85rem; font-family: 'Inter', sans-serif; appearance: none;
+    }
+    .btn-export {
+      padding: 9px 16px; background: transparent;
+      border: 1px solid var(--navy-line); border-radius: var(--radius-sm);
+      color: var(--text-2); font-size: 0.85rem; font-weight: 600;
+      font-family: 'Inter', sans-serif; cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .btn-export:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── TABLA ── */
+    .tabla-wrap {
+      background: var(--navy-card); border: 1px solid var(--navy-line);
+      border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 24px;
+    }
+    .tabla-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    thead tr { background: var(--navy-mid); }
+    thead th {
+      padding: 12px 14px; text-align: left; font-size: 0.7rem;
+      font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3);
+    }
+    tbody tr { border-top: 1px solid var(--navy-line); transition: background .1s; }
+    tbody tr:hover { background: rgba(59,130,246,0.05); }
+    tbody td { padding: 12px 14px; color: var(--text-1); }
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em;
+    }
+    .badge-ingreso { background: rgba(16,185,129,0.15); color: var(--green); }
+    .badge-egreso  { background: rgba(239,68,68,0.15);  color: var(--red); }
+    .monto-ingreso { color: var(--green); font-weight: 600; font-family: 'DM Sans', sans-serif; }
+    .monto-egreso  { color: var(--red);   font-weight: 600; font-family: 'DM Sans', sans-serif; }
+    .btn-accion {
+      background: transparent; border: 1px solid var(--navy-line);
+      color: var(--text-3); border-radius: 6px; padding: 5px 8px;
+      cursor: pointer; font-size: 0.8rem; transition: all .15s; margin-right: 4px;
+    }
+    .btn-accion:hover { border-color: var(--accent); color: var(--accent); }
+    .sin-datos {
+      text-align: center; color: var(--text-3); padding: 32px; font-size: 0.9rem;
+    }
+
+    /* ── GRÁFICOS ── */
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+    .chart-card {
+      background: var(--navy-card); border: 1px solid var(--navy-line);
+      border-radius: var(--radius-md); padding: 16px;
+    }
+    .chart-card.wide { grid-column: 1 / -1; }
+    .chart-card h3 { font-size: 0.75rem; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; }
+    .chart-card canvas { max-height: 200px; }
+    .chart-card.wide canvas { max-height: 180px; }
+
+    /* ── CATEGORÍAS ── */
+    .cat-card {
+      background: var(--navy-card); border: 1px solid var(--navy-line);
+      border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 24px;
+    }
+    .cat-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 16px; border-top: 1px solid var(--navy-line); font-size: 0.88rem;
+    }
+    .cat-row:first-child { border-top: none; }
+    .cat-name { color: var(--text-2); }
+    .cat-amount { font-family: 'DM Sans', sans-serif; font-weight: 700; color: var(--text-1); }
+
+    /* ── PRESUPUESTO ── */
+    .budget-card {
+      background: var(--navy-card); border: 1px solid var(--navy-line);
+      border-radius: var(--radius-lg); margin-bottom: 24px; overflow: hidden;
+    }
+    .budget-item { padding: 14px 16px; border-top: 1px solid var(--navy-line); }
+    .budget-item:first-child { border-top: none; }
+    .budget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .budget-label { font-size: 0.88rem; color: var(--text-1); }
+    .budget-amounts { font-size: 0.78rem; color: var(--text-3); }
+    .budget-amounts span { color: var(--text-2); font-weight: 600; }
+    .progress-bar { height: 6px; background: var(--navy-line); border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 999px; transition: width .4s ease; }
+    .progress-ok   { background: var(--green); }
+    .progress-warn { background: var(--amber); }
+    .progress-over { background: var(--red); }
+    .btn-add-budget {
+      width: 100%; padding: 12px; background: transparent;
+      border: 1px dashed var(--navy-line); border-radius: var(--radius-sm);
+      color: var(--text-3); font-size: 0.85rem; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: all .15s; margin-top: 10px;
+    }
+    .btn-add-budget:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── METAS ── */
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .meta-card {
+      background: var(--navy-card); border: 1px solid var(--navy-line);
+      border-radius: var(--radius-md); padding: 16px; position: relative;
+    }
+    .meta-icon { font-size: 1.4rem; margin-bottom: 8px; }
+    .meta-name { font-size: 0.88rem; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
+    .meta-amounts { font-size: 0.75rem; color: var(--text-3); margin-bottom: 10px; }
+    .meta-amounts span { color: var(--accent); font-weight: 600; }
+    .meta-pct { font-family: 'DM Sans', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+    .meta-delete {
+      position: absolute; top: 10px; right: 10px; background: transparent;
+      border: none; color: var(--text-3); cursor: pointer; font-size: 0.8rem;
+      padding: 4px; border-radius: 4px; transition: color .15s;
+    }
+    .meta-delete:hover { color: var(--red); }
+    .btn-add-meta {
+      grid-column: 1 / -1; padding: 14px; background: transparent;
+      border: 1px dashed var(--navy-line); border-radius: var(--radius-md);
+      color: var(--text-3); font-size: 0.85rem; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: all .15s;
+    }
+    .btn-add-meta:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7); z-index: 200;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--navy-card); border: 1px solid var(--navy-line);
+      border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 360px;
+    }
+    .modal-title {
+      font-family: 'DM Sans', sans-serif; font-size: 1.1rem; font-weight: 700;
+      margin-bottom: 18px; color: var(--text-1);
+    }
+    .modal-box .form-group input,
+    .modal-box .form-group select { background: var(--navy-mid); }
+    .modal-btn-row { display: flex; gap: 10px; margin-top: 16px; }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+      background: rgba(22,34,54,0.97); backdrop-filter: blur(16px);
+      border-top: 1px solid var(--navy-line);
+      display: flex; justify-content: space-around; padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px; text-decoration: none; color: var(--text-3);
+      font-size: 0.62rem; font-weight: 600; letter-spacing: 0.04em;
+      text-transform: uppercase; cursor: pointer; border: none; background: transparent;
+      padding: 4px 12px; border-radius: var(--radius-sm); transition: color .15s;
+    }
+    .nav-item .nav-icon { font-size: 1.3rem; }
+    .nav-item.active { color: var(--accent); }
+
+    /* ── SECCIONES OCULTAS ── */
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+
+    @media (max-width: 420px) {
+      .summary-card .amount { font-size: 1.6rem; }
+      .summary-card.main .amount { font-size: 2rem; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .meta-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-      <button id="btnPersonal" onclick="cambiarModo('personal')" style="flex: 1; padding: 10px; background-color: #3498db; color: white; border: none; border-radius: 5px;">Personal</button>
-      <button id="btnLaboral" onclick="cambiarModo('laboral')" style="flex: 1; padding: 10px; background-color: #bdc3c7; color: white; border: none; border-radius: 5px;">Laboral</button>
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="brand">
+    <div class="brand-icon">💼</div>
+    <div class="brand-name">Alkaranta <span>Finanzas</span></div>
+  </div>
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="btnPersonal" onclick="cambiarModo('personal')">Personal</button>
+    <button class="mode-tab" id="btnLaboral" onclick="cambiarModo('laboral')">Laboral</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ── INICIO ── -->
+  <div class="tab-section active" id="sec-inicio">
+    <div style="height:20px"></div>
+    <div class="summary-grid">
+      <div class="summary-card main">
+        <div class="label">Saldo total</div>
+        <div class="amount" id="saldoTotal">$0</div>
+        <div class="sub-label" id="periodoLabel">Todos los períodos</div>
+      </div>
+      <div class="summary-card card-ing">
+        <div class="label">Ingresos</div>
+        <div class="amount" id="totalIngresos">$0</div>
+        <div class="card-accent-line"></div>
+      </div>
+      <div class="summary-card card-egr">
+        <div class="label">Egresos</div>
+        <div class="amount" id="totalEgresos">$0</div>
+        <div class="card-accent-line"></div>
+      </div>
     </div>
 
-    <header class="app-header">
-      <!-- Dentro de la app usamos el PNG también, más compatible -->
-      <img src="icono-192.png" alt="Logo Alkaranta Finanzas" class="logo-coin">
-      <div>
-        <h1>Alkaranta Finanzas</h1>
-        <p>Control inteligente de ingresos y egresos</p>
+    <div class="section-title">Resumen visual</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Distribución</h3>
+        <canvas id="graficoTorta"></canvas>
       </div>
-    </header>
+      <div class="chart-card">
+        <h3>Por categoría</h3>
+        <canvas id="graficoCat"></canvas>
+      </div>
+      <div class="chart-card wide">
+        <h3>Últimos 12 meses</h3>
+        <canvas id="graficoBarras"></canvas>
+      </div>
+    </div>
 
-    <section class="cards">
-      <div class="card card-saldo">
-        <h3>Saldo Total</h3>
-        <span id="saldoTotal">$0</span>
-      </div>
-      <div class="card card-ingresos">
-        <h3>Ingresos</h3>
-        <span id="totalIngresos">$0</span>
-      </div>
-      <div class="card card-egresos">
-        <h3>Egresos</h3>
-        <span id="totalEgresos">$0</span>
-      </div>
-    </section>
+    <div class="section-title">Gastos por categoría</div>
+    <div class="cat-card" id="listaCategorias"></div>
+  </div>
 
-    <section class="resumen-categorias" style="margin-top: 20px;">
-      <h2>Gastos por Categoría</h2>
-      <div id="listaCategorias" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+  <!-- ── MOVIMIENTOS ── -->
+  <div class="tab-section" id="sec-movimientos">
+    <div style="height:20px"></div>
+    <div class="section-title">Nuevo movimiento</div>
+    <div class="form-card">
+      <div class="date-row" style="margin-bottom:12px">
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="fecha">
+        </div>
+        <button class="btn-today" onclick="resetearFecha()">Hoy</button>
       </div>
-    </section>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="tipo" onchange="actualizarCategorias()">
+            <option value="Ingreso">Ingreso</option>
+            <option value="Egreso">Egreso</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Categoría</label>
+          <select id="categoria"></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Monto</label>
+          <input type="number" id="monto" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <input type="text" id="descripcion" placeholder="Opcional">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnGuardar" onclick="guardarMovimiento()">💾 Guardar</button>
+        <button class="btn btn-cancel" id="btnCancelar" onclick="cancelarEdicion()">✕ Cancelar</button>
+      </div>
+    </div>
 
-    <section class="formulario">
-      <h2 id="tituloFormulario">Nuevo Movimiento</h2>
-      <div style="display: flex; gap: 5px; align-items: center; margin-bottom: 10px;">
-        <input type="date" id="fecha" style="flex-grow: 1;">
-        <button type="button" onclick="resetearFecha()" style="padding: 5px 10px;">📅 Hoy</button>
-      </div>
-      <select id="tipo" onchange="actualizarCategorias()">
-        <option value="Ingreso">Ingreso</option>
-        <option value="Egreso">Egreso</option>
+    <div class="section-title">Historial</div>
+    <div class="filters-row">
+      <select id="filtroMes" onchange="renderizar()"><option value="">Todos los meses</option></select>
+      <select id="filtroTipo" onchange="renderizar()">
+        <option value="">Todos</option>
+        <option value="Ingreso">Ingresos</option>
+        <option value="Egreso">Egresos</option>
       </select>
-      <select id="categoria"></select>
-      <input type="number" id="monto" placeholder="Monto" min="0">
-      <input type="text" id="descripcion" placeholder="Descripción (opcional)">
-      <div class="btn-group">
-        <button id="btnGuardar" onclick="guardarMovimiento()">💾 Guardar Movimiento</button>
-        <button id="btnCancelar" class="btn-cancelar" onclick="cancelarEdicion()" style="display:none">✕ Cancelar</button>
-      </div>
-    </section>
-
-    <section class="filtros">
-      <div class="filtros-inner">
-        <select id="filtroMes" onchange="renderizar()">
-          <option value="">Todos los meses</option>
-        </select>
-        <select id="filtroTipo" onchange="renderizar()">
-          <option value="">Todos</option>
-          <option value="Ingreso">Ingresos</option>
-          <option value="Egreso">Egresos</option>
-        </select>
-        <button class="btn-export" onclick="exportarCSV()">📥 Exportar CSV</button>
-      </div>
-    </section>
-
-    <section class="tabla">
-      <h2>Movimientos</h2>
+      <button class="btn-export" onclick="exportarCSV()">📥 CSV</button>
+    </div>
+    <div class="tabla-wrap">
       <div class="tabla-scroll">
         <table>
           <thead>
             <tr>
-              <th>Fecha</th>
-              <th>Tipo</th>
-              <th>Categoría</th>
-              <th>Monto</th>
-              <th>Descripción</th>
-              <th>Acciones</th>
+              <th>Fecha</th><th>Tipo</th><th>Categoría</th>
+              <th>Monto</th><th>Descripción</th><th></th>
             </tr>
           </thead>
           <tbody id="tablaMovimientos"></tbody>
         </table>
       </div>
-      <p id="sinMovimientos" class="sin-datos" style="display:none">No hay movimientos para mostrar.</p>
-    </section>
-
-    <section class="grafico">
-      <h2>Resumen Financiero</h2>
-      <div class="grafico-inner">
-        <canvas id="graficoTorta"></canvas>
-        <canvas id="graficoBarras"></canvas>
-      </div>
-    </section>
-
+      <p id="sinMovimientos" class="sin-datos" style="display:none">Sin movimientos para mostrar.</p>
+    </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="app.js"></script>
+  <!-- ── PRESUPUESTO ── -->
+  <div class="tab-section" id="sec-presupuesto">
+    <div style="height:20px"></div>
+    <div class="section-title">Presupuesto mensual</div>
+    <p style="font-size:0.85rem;color:var(--text-3);margin-bottom:16px">Definí cuánto querés gastar por categoría este mes.</p>
+    <div class="budget-card" id="budgetList"></div>
+    <button class="btn-add-budget" onclick="abrirModalPresupuesto()">+ Agregar categoría</button>
+  </div>
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('Service Worker registrado correctamente'))
-          .catch(err => console.log('Error al registrar el Service Worker:', err));
-      });
-    }
-  </script>
+  <!-- ── METAS ── -->
+  <div class="tab-section" id="sec-metas">
+    <div style="height:20px"></div>
+    <div class="section-title">Metas de ahorro</div>
+    <p style="font-size:0.85rem;color:var(--text-3);margin-bottom:16px">Registrá tus objetivos y seguí tu progreso.</p>
+    <div class="meta-grid" id="metaGrid">
+      <button class="btn-add-meta" onclick="abrirModalMeta()">+ Nueva meta</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="cambiarTab('inicio',this)">
+    <span class="nav-icon">📊</span>Inicio
+  </button>
+  <button class="nav-item" onclick="cambiarTab('movimientos',this)">
+    <span class="nav-icon">💸</span>Movimientos
+  </button>
+  <button class="nav-item" onclick="cambiarTab('presupuesto',this)">
+    <span class="nav-icon">🎯</span>Presupuesto
+  </button>
+  <button class="nav-item" onclick="cambiarTab('metas',this)">
+    <span class="nav-icon">⭐</span>Metas
+  </button>
+</nav>
+
+<!-- MODAL PRESUPUESTO -->
+<div class="modal-overlay" id="modalPresupuesto">
+  <div class="modal-box">
+    <div class="modal-title">Agregar presupuesto</div>
+    <div class="form-group">
+      <label>Categoría</label>
+      <select id="budgetCat"></select>
+    </div>
+    <div class="form-group">
+      <label>Límite mensual</label>
+      <input type="number" id="budgetMonto" placeholder="0" min="0">
+    </div>
+    <div class="modal-btn-row">
+      <button class="btn btn-primary" onclick="guardarPresupuesto()">Guardar</button>
+      <button class="btn btn-cancel" style="display:block" onclick="cerrarModales()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL META -->
+<div class="modal-overlay" id="modalMeta">
+  <div class="modal-box">
+    <div class="modal-title">Nueva meta de ahorro</div>
+    <div class="form-group">
+      <label>Nombre de la meta</label>
+      <input type="text" id="metaNombre" placeholder="Ej: Vacaciones, Auto...">
+    </div>
+    <div class="form-group">
+      <label>Objetivo ($)</label>
+      <input type="number" id="metaObjetivo" placeholder="0" min="0">
+    </div>
+    <div class="form-group">
+      <label>Ahorrado hasta ahora ($)</label>
+      <input type="number" id="metaAhorrado" placeholder="0" min="0">
+    </div>
+    <div class="form-group">
+      <label>Ícono</label>
+      <select id="metaIcono">
+        <option value="🏖️">🏖️ Vacaciones</option>
+        <option value="🚗">🚗 Auto</option>
+        <option value="🏠">🏠 Casa</option>
+        <option value="📱">📱 Tecnología</option>
+        <option value="🎓">🎓 Educación</option>
+        <option value="💊">💊 Salud</option>
+        <option value="⭐">⭐ Otro</option>
+      </select>
+    </div>
+    <div class="modal-btn-row">
+      <button class="btn btn-primary" onclick="guardarMeta()">Guardar</button>
+      <button class="btn btn-cancel" style="display:block" onclick="cerrarModales()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+</script>
 </body>
 </html>
