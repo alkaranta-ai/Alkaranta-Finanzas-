@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Alkaranta Finanzas</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="wallet-icon-512.svg">
@@ -49,21 +49,29 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+    html {
+      scroll-behavior: smooth;
+      -webkit-tap-highlight-color: transparent;
+      /* FIX: evita rotación horizontal en algunos dispositivos */
+      overflow-x: hidden;
+    }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
       color: var(--text-1);
       min-height: 100vh;
-      padding-bottom: 90px;
+      /* FIX: padding suficiente para que el contenido no quede bajo la nav */
+      padding-bottom: 100px;
       font-size: 15px;
       -webkit-font-smoothing: antialiased;
+      /* FIX: evita scroll horizontal que simula "modo horizontal" */
+      overflow-x: hidden;
+      width: 100%;
     }
 
     /* ── TOP BAR ── */
     .top-bar {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(var(--surface-rgb, 255,255,255), 0.85);
       background: var(--surface);
       border-bottom: 0.5px solid var(--border);
       padding: 0 20px;
@@ -88,6 +96,9 @@
       font-size: 13px; font-weight: 500; font-family: inherit;
       transition: all .2s cubic-bezier(.4,0,.2,1);
       color: var(--text-2); background: transparent;
+      /* FIX: asegura que el touch funcione bien */
+      touch-action: manipulation;
+      -webkit-user-select: none; user-select: none;
     }
     .mode-btn.active {
       background: var(--surface); color: var(--text-1);
@@ -146,12 +157,12 @@
 
     /* ── SECTION LABEL ── */
     .sec-label {
-      font-size: 13px; font-weight: 600; letter-spacing: -0.1px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
       color: var(--text-2); margin: 24px 0 10px;
-      text-transform: uppercase; font-size: 11px; letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
 
-    /* ── GROUPED LIST (Apple settings style) ── */
+    /* ── GROUPED LIST ── */
     .list-group {
       background: var(--surface); border-radius: var(--r-lg);
       border: 0.5px solid var(--border); overflow: hidden;
@@ -182,6 +193,7 @@
       background: var(--surface-2); border: 0.5px solid var(--border);
       border-radius: 8px; padding: 5px 9px; font-size: 12px;
       cursor: pointer; color: var(--text-2); transition: all .15s;
+      touch-action: manipulation;
     }
     .btn-row-action:hover { color: var(--emerald); border-color: var(--emerald); }
 
@@ -215,6 +227,7 @@
       color: #fff; border: none; border-radius: var(--r-md);
       font-size: 15px; font-weight: 600; font-family: inherit;
       cursor: pointer; transition: all .15s; letter-spacing: -0.2px;
+      touch-action: manipulation;
     }
     .btn-primary:hover { background: var(--emerald-dim); }
     .btn-primary:active { transform: scale(0.98); }
@@ -223,12 +236,13 @@
       color: var(--text-2); border: 0.5px solid var(--border-strong);
       border-radius: var(--r-md); font-size: 15px; font-weight: 500;
       font-family: inherit; cursor: pointer; transition: all .15s; display: none;
+      touch-action: manipulation;
     }
     .btn-today {
       padding: 10px 14px; background: var(--surface-2); color: var(--text-2);
       border: 0.5px solid var(--border-strong); border-radius: var(--r-sm);
       font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit;
-      white-space: nowrap; transition: all .15s;
+      white-space: nowrap; transition: all .15s; touch-action: manipulation;
     }
     .btn-today:hover { color: var(--emerald); border-color: var(--emerald); }
     .btn-ghost {
@@ -236,6 +250,7 @@
       border: 0.5px solid var(--border-strong); border-radius: var(--r-sm);
       color: var(--text-2); font-size: 13px; font-weight: 500; font-family: inherit;
       cursor: pointer; transition: all .15s; white-space: nowrap;
+      touch-action: manipulation;
     }
     .btn-ghost:hover { color: var(--emerald); border-color: var(--emerald); }
 
@@ -293,19 +308,21 @@
       border: 0.5px solid rgba(5,150,105,0.3); border-radius: var(--r-sm);
       color: var(--emerald); font-size: 12px; font-weight: 600;
       font-family: inherit; cursor: pointer; transition: all .15s;
+      touch-action: manipulation;
     }
     .btn-meta-plus:hover { background: rgba(5,150,105,0.18); }
     .btn-meta-del {
       padding: 8px 10px; background: transparent;
       border: 0.5px solid var(--border-strong); border-radius: var(--r-sm);
       color: var(--text-3); font-size: 13px; cursor: pointer; transition: all .15s;
+      touch-action: manipulation;
     }
     .btn-meta-del:hover { color: var(--red); border-color: var(--red); }
     .btn-add-meta {
       grid-column: 1/-1; padding: 16px; background: transparent;
       border: 0.5px dashed var(--border-strong); border-radius: var(--r-lg);
       color: var(--text-3); font-size: 15px; font-family: inherit;
-      cursor: pointer; transition: all .15s;
+      cursor: pointer; transition: all .15s; touch-action: manipulation;
     }
     .btn-add-meta:hover { border-color: var(--emerald); color: var(--emerald); }
     .btn-add-budget {
@@ -313,6 +330,7 @@
       border: 0.5px dashed var(--border-strong); border-radius: var(--r-md);
       color: var(--text-3); font-size: 15px; font-family: inherit;
       cursor: pointer; transition: all .15s; margin-top: 10px;
+      touch-action: manipulation;
     }
     .btn-add-budget:hover { border-color: var(--emerald); color: var(--emerald); }
 
@@ -346,11 +364,15 @@
 
     /* ── BOTTOM NAV ── */
     .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      /* FIX: z-index mayor que cualquier contenido de página */
+      z-index: 999;
       background: var(--surface);
       border-top: 0.5px solid var(--border);
       display: flex; justify-content: space-around;
       padding: 8px 0 max(12px, env(safe-area-inset-bottom));
+      /* FIX: asegura que recibe eventos touch */
+      touch-action: manipulation;
     }
     .nav-btn {
       display: flex; flex-direction: column; align-items: center;
@@ -358,6 +380,12 @@
       color: var(--text-3); font-size: 10px; font-weight: 500;
       font-family: inherit; letter-spacing: 0.02em; padding: 4px 16px;
       border-radius: var(--r-sm); transition: color .15s;
+      /* FIX: crítico para que los taps funcionen en iOS/Android */
+      touch-action: manipulation;
+      -webkit-user-select: none; user-select: none;
+      /* FIX: área mínima de toque recomendada por Apple/Google */
+      min-width: 48px; min-height: 48px;
+      justify-content: center;
     }
     .nav-btn .ni { font-size: 22px; line-height: 1; }
     .nav-btn.active { color: var(--emerald); }
