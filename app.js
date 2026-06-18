@@ -19,6 +19,12 @@ document.addEventListener("DOMContentLoaded", () => {
   renderizar();
   renderPresupuesto();
   renderMetas();
+
+  // FIX: los listeners de overlay se registran aquí, dentro de DOMContentLoaded,
+  // para garantizar que el DOM esté listo cuando se ejecutan.
+  document.querySelectorAll(".overlay").forEach(m => {
+    m.addEventListener("click", e => { if (e.target === m) cerrarModales(); });
+  });
 });
 
 // ── TABS ──
@@ -107,8 +113,18 @@ function editarMovimiento(i) {
 
 function eliminarMovimiento(i) {
   if (!confirm("¿Eliminar este movimiento?")) return;
+
+  // FIX: si se estaba editando un elemento posterior al eliminado,
+  // el índice queda desfasado — hay que corregirlo.
+  if (editandoIdx !== null) {
+    if (editandoIdx === i) {
+      cancelarEdicion();
+    } else if (editandoIdx > i) {
+      editandoIdx--;
+    }
+  }
+
   movimientos.splice(i, 1);
-  if (editandoIdx === i) cancelarEdicion();
   guardarLS(); poblarFiltroMeses(); renderizar();
 }
 
@@ -413,9 +429,6 @@ function renderMetas() {
 function cerrarModales() {
   document.querySelectorAll(".overlay").forEach(m => m.classList.remove("open"));
 }
-document.querySelectorAll(".overlay").forEach(m => {
-  m.addEventListener("click", e => { if (e.target === m) cerrarModales(); });
-});
 
 // ── UTILS ──
 function exportarCSV() {
