@@ -9,7 +9,6 @@ let metas        = JSON.parse(localStorage.getItem("metas"))        || [];
 let modoActual   = 'personal';
 let editandoIdx  = null;
 let metaAhorroIdx = null;
-let gTorta = null, gBarras = null, gCat = null;
 
 // ── INIT ──
 document.addEventListener("DOMContentLoaded", () => {
@@ -210,7 +209,7 @@ function renderizar() {
   }
 
   actualizarCategoriasList(filtrados);
-  actualizarGraficos(ingresos, egresos, filtrados);
+  renderDashboard(ingresos, egresos, filtrados, filtroMes);
 }
 
 function actualizarCategoriasList(filtrados) {
@@ -231,68 +230,50 @@ function actualizarCategoriasList(filtrados) {
   });
 }
 
-// ── GRÁFICOS ──
-function actualizarGraficos(ingresos, egresos, filtrados) {
-  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const tick = isDark ? '#636366' : '#AEAEB2';
-  const grid = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-
-  if (gTorta) gTorta.destroy();
-  gTorta = new Chart(document.getElementById("graficoTorta"), {
-    type: "doughnut",
-    data: { labels: ["Ingresos","Egresos"], datasets: [{ data: [ingresos, egresos], backgroundColor: ["#059669","#F43F5E"], borderWidth: 0, hoverOffset: 4 }] },
-    options: { cutout: "70%", plugins: { legend: { position: "bottom", labels: { color: tick, font: { size: 11 }, boxWidth: 10, padding: 12 } } }, animation: { duration: 500 } }
-  });
-
-  const res = {};
-  filtrados.filter(m => m.tipo === "Egreso").forEach(m => { res[m.categoria] = (res[m.categoria] || 0) + m.monto; });
-  const sorted = Object.entries(res).sort((a,b) => b[1]-a[1]).slice(0,5);
-  if (gCat) gCat.destroy();
-  gCat = new Chart(document.getElementById("graficoCat"), {
-    type: "bar",
-    data: { labels: sorted.map(e => e[0]), datasets: [{ data: sorted.map(e => e[1]), backgroundColor: "#059669", borderRadius: 6 }] },
-    options: {
-      indexAxis: 'y',
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { color: grid }, ticks: { color: tick, font: { size: 10 } } },
-        y: { grid: { display: false }, ticks: { color: tick, font: { size: 10 } } }
-      },
-      animation: { duration: 500 }
-    }
-  });
-
-  const hoy = new Date();
-  const meses = [], dIng = [], dEgr = [];
-  for (let i = 11; i >= 0; i--) {
-    const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
-    const clave = d.toISOString().slice(0, 7);
-    meses.push(d.toLocaleDateString("es-AR", { month: "short" }));
-    let ing = 0, egr = 0;
-    movimientos.filter(pertenece).forEach(m => {
-      if (m.fecha && m.fecha.startsWith(clave)) { if (m.tipo === "Ingreso") ing += m.monto; else egr += m.monto; }
-    });
-    dIng.push(ing); dEgr.push(egr);
+// ── MINI DASHBOARD (sin gráficos) ──
+function diasEnPeriodo(filtroMes, filtrados) {
+  if (filtroMes) {
+    const [a, n] = filtroMes.split("-").map(Number);
+    return new Date(a, n, 0).getDate();
   }
-  if (gBarras) gBarras.destroy();
-  gBarras = new Chart(document.getElementById("graficoBarras"), {
-    type: "bar",
-    data: {
-      labels: meses,
-      datasets: [
-        { label: "Ingresos", data: dIng, backgroundColor: "#059669", borderRadius: 4 },
-        { label: "Egresos",  data: dEgr, backgroundColor: "#F43F5E", borderRadius: 4 }
-      ]
-    },
-    options: {
-      plugins: { legend: { position: "bottom", labels: { color: tick, font: { size: 11 }, boxWidth: 10, padding: 12 } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: tick, font: { size: 10 } } },
-        y: { grid: { color: grid }, ticks: { color: tick, font: { size: 10 } } }
-      },
-      animation: { duration: 500 }
-    }
-  });
+  const fechas = filtrados.map(m => m.fecha).filter(Boolean).sort();
+  if (fechas.length === 0) return 1;
+  const ini = new Date(fechas[0] + "T00:00:00");
+  const fin = new Date(fechas[fechas.length - 1] + "T00:00:00");
+  const dias = Math.round((fin - ini) / 86400000) + 1;
+  return Math.max(dias, 1);
+}
+
+function renderDashboard(ingresos, egresos, filtrados, filtroMes) {
+  // Barra comparativa ingresos vs egresos
+  const total = ingresos + egresos;
+  const pctIng = total > 0 ? Math.round((ingresos / total) * 100) : 50;
+  const pctEgr = 100 - pctIng;
+  document.getElementById("balBarIng").style.width = pctIng + "%";
+  document.getElementById("balBarEgr").style.width = pctEgr + "%";
+  document.getElementById("balPctIng").textContent = pctIng + "%";
+  document.getElementById("balPctEgr").textContent = pctEgr + "%";
+
+  // Tasa de ahorro
+  const tasa = ingresos > 0 ? Math.round(((ingresos - egresos) / ingresos) * 100) : 0;
+  const tasaEl = document.getElementById("kpiTasa");
+  tasaEl.textContent = tasa + "%";
+  tasaEl.classList.toggle("kpi-neg", tasa < 0);
+
+  // Mayor categoría de gasto
+  const porCat = {};
+  filtrados.filter(m => m.tipo === "Egreso").forEach(m => { porCat[m.categoria] = (porCat[m.categoria] || 0) + m.monto; });
+  const topCat = Object.entries(porCat).sort((a,b) => b[1]-a[1])[0];
+  document.getElementById("kpiTopCat").textContent = topCat ? topCat[0] : "—";
+  document.getElementById("kpiTopCatMonto").textContent = topCat ? "$" + topCat[1].toLocaleString("es-AR") : "$0";
+
+  // Promedio diario de gasto
+  const dias = diasEnPeriodo(filtroMes, filtrados);
+  const promedio = Math.round(egresos / dias);
+  document.getElementById("kpiPromedio").textContent = "$" + promedio.toLocaleString("es-AR");
+
+  // Cantidad de movimientos
+  document.getElementById("kpiMovs").textContent = filtrados.length;
 }
 
 // ── PRESUPUESTO ──
