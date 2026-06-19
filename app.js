@@ -254,7 +254,8 @@ function renderDashboard(ingresos, egresos, filtrados, filtroMes) {
   document.getElementById("balPctIng").textContent = pctIng + "%";
   document.getElementById("balPctEgr").textContent = pctEgr + "%";
 
-  // Tasa de ahorro
+  // Tasa de ahorro: (ingresos - egresos) / ingresos, calculada automáticamente
+  // a partir de los movimientos cargados en el período filtrado.
   const tasa = ingresos > 0 ? Math.round(((ingresos - egresos) / ingresos) * 100) : 0;
   const tasaEl = document.getElementById("kpiTasa");
   tasaEl.textContent = tasa + "%";
@@ -274,6 +275,16 @@ function renderDashboard(ingresos, egresos, filtrados, filtroMes) {
 
   // Cantidad de movimientos
   document.getElementById("kpiMovs").textContent = filtrados.length;
+}
+
+// ── INFO TASA DE AHORRO ──
+function explicarTasaAhorro() {
+  alert(
+    "¿Cómo se calcula la tasa de ahorro?\n\n" +
+    "Es automática: se calcula con (Ingresos − Egresos) / Ingresos del período que estés viendo. No hay que cargarla a mano.\n\n" +
+    "Para que sea correcta, registrá tus ingresos y egresos en la pestaña 'Movimientos'.\n\n" +
+    "Si lo que querés es guardar plata para un objetivo puntual (vacaciones, un auto, etc.), usá la pestaña 'Metas': ahí podés crear una meta y tocar '+ Agregar' para sumar lo que vayas ahorrando."
+  );
 }
 
 // ── PRESUPUESTO ──
