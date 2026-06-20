@@ -1,0 +1,114 @@
+/* ════════════════════════════════════════════════════════════
+   ALKARANTA · UI DE GAMIFICACIÓN
+   Renderiza la pestaña "Logros", muestra toasts de nivel/logro
+   y dispara el recálculo en los momentos correctos.
+   No modifica app.js: se llama desde los mismos puntos donde
+   app.js ya hace guardarLS() + renderizar().
+════════════════════════════════════════════════════════════ */
+
+let __ultimoStatsGam = null; // cache del último cálculo, para que renderLogros no recalcule (y no duplique logros)
+
+function actualizarGamificacion() {
+  const { stats, nuevosLogros, nivel } = gam.recalcular({ movimientos, metas, presupuestos });
+  __ultimoStatsGam = stats;
+  renderLogros();
+  nuevosLogros.forEach(l => mostrarToastLogro(l));
+  return { stats, nivel };
+}
+
+/* ── TOAST ── */
+function mostrarToastLogro(logro) {
+  const cont = document.getElementById("toastContainer");
+  if (!cont) return;
+  const el = document.createElement("div");
+  el.className = "gam-toast";
+  el.innerHTML = `
+    <span class="gam-toast-icon">${logro.icono}</span>
+    <div class="gam-toast-body">
+      <div class="gam-toast-title">Logro desbloqueado</div>
+      <div class="gam-toast-name">${logro.nombre}</div>
+    </div>
+    <span class="gam-toast-xp">+${logro.xp} XP</span>`;
+  cont.appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  setTimeout(() => {
+    el.classList.remove("show");
+    setTimeout(() => el.remove(), 350);
+  }, 3800);
+}
+
+/* ── RENDER PESTAÑA LOGROS ──
+   Solo lee el estado ya calculado (vía __ultimoStatsGam o gam.getEstadoCompleto).
+   No vuelve a llamar gam.recalcular() para no procesar logros dos veces. */
+function renderLogros() {
+  const cont = document.getElementById("sec-logros");
+  if (!cont) return;
+
+  const { xp, nivel, logrosDesbloqueados, catalogoLogros } = gam.getEstadoCompleto();
+
+  const head = cont.querySelector("#logrosHead");
+  head.innerHTML = `
+    <div class="level-card glass">
+      <div class="level-ring">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="42" class="level-ring-bg"/>
+          <circle cx="50" cy="50" r="42" class="level-ring-fill"
+            stroke-dasharray="264"
+            stroke-dashoffset="${264 - (264 * nivel.pct / 100)}"/>
+        </svg>
+        <div class="level-ring-label">
+          <div class="level-ring-num">${nivel.nivel}</div>
+          <div class="level-ring-sub">NIVEL</div>
+        </div>
+      </div>
+      <div class="level-info">
+        <div class="level-xp-row">
+          <span>${nivel.xpEnNivel} XP</span>
+          <span class="level-xp-total">/ ${nivel.xpNecesaria} XP</span>
+        </div>
+        <div class="prog-bar" style="margin-top:8px">
+          <div class="prog-fill ok" style="width:${nivel.pct}%"></div>
+        </div>
+        <div class="level-next">Faltan ${nivel.xpNecesaria - nivel.xpEnNivel} XP para nivel ${nivel.nivel + 1}</div>
+      </div>
+    </div>`;
+
+  // Si todavía no se calcularon stats en esta carga (ej: usuario entra directo a la pestaña
+  // Logros antes de que dispare el DOMContentLoaded inicial), las pedimos sin mutar estado.
+  const stats = __ultimoStatsGam || gam.recalcular({ movimientos, metas, presupuestos }).stats;
+  __ultimoStatsGam = stats;
+
+  const rachaBox = cont.querySelector("#logrosRacha");
+  rachaBox.innerHTML = `
+    <div class="dash-card kpi-card glass">
+      <div class="kpi-icon">🔥</div>
+      <div class="kpi-label">Racha actual</div>
+      <div class="kpi-val">${stats.rachaActual} ${stats.rachaActual === 1 ? "día" : "días"}</div>
+    </div>
+    <div class="dash-card kpi-card glass">
+      <div class="kpi-icon">⚡</div>
+      <div class="kpi-label">Racha máxima</div>
+      <div class="kpi-val">${stats.rachaMax} ${stats.rachaMax === 1 ? "día" : "días"}</div>
+    </div>`;
+
+  const grid = cont.querySelector("#logrosGrid");
+  grid.innerHTML = "";
+  catalogoLogros.forEach(l => {
+    const desbloqueado = logrosDesbloqueados.includes(l.id);
+    const card = document.createElement("div");
+    card.className = "logro-card glass" + (desbloqueado ? " unlocked" : " locked");
+    card.innerHTML = `
+      <span class="logro-icon">${desbloqueado ? l.icono : "🔒"}</span>
+      <div class="logro-name">${l.nombre}</div>
+      <div class="logro-desc">${l.desc}</div>
+      <div class="logro-xp">${desbloqueado ? "+" + l.xp + " XP" : l.xp + " XP"}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+/* ── HOOK: se llama después de que app.js inicializa todo ── */
+document.addEventListener("DOMContentLoaded", () => {
+  // Espera al DOMContentLoaded propio de app.js (que corre primero porque
+  // su <script> está antes en el HTML) y luego pinta el estado inicial.
+  setTimeout(actualizarGamificacion, 0);
+});
