@@ -49,9 +49,13 @@
     .top-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 500; background: var(--surface-strong); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); border-bottom: 1px solid var(--border-soft); padding: env(safe-area-inset-top) 20px 0; min-height: var(--topbar-h); display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 10px; }
     .brand-name { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; color: var(--text-1); }
     .brand-name em { font-style: normal; color: var(--emerald); }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
     .mode-pill { display: flex; gap: 2px; background: var(--surface-2); border-radius: var(--r-pill); padding: 3px; border: 1px solid var(--border-soft); }
     .mode-btn { padding: 5px 14px; border-radius: var(--r-pill); border: none; cursor: pointer; font-size: 13px; font-weight: 500; font-family: inherit; transition: all .2s cubic-bezier(.4,0,.2,1); color: var(--text-2); background: transparent; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
     .mode-btn.active { background: #fff; color: var(--text-1); box-shadow: 0 2px 6px rgba(20,20,25,0.14), inset 0 1px 0 rgba(255,255,255,0.9); }
+    .user-chip { display: flex; align-items: center; gap: 6px; background: var(--surface-2); border: 1px solid var(--border-soft); border-radius: var(--r-pill); padding: 5px 6px 5px 10px; cursor: pointer; touch-action: manipulation; }
+    .user-chip-email { font-size: 11px; color: var(--text-2); max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-chip-icon { width: 20px; height: 20px; border-radius: 50%; background: var(--emerald); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .page { max-width: 640px; margin: 0 auto; padding: 0 16px; }
     .hero { margin: 20px 0 12px; background: linear-gradient(155deg, #06A87A 0%, var(--emerald-dim) 100%); border-radius: var(--r-xl); padding: 28px 24px 24px; position: relative; overflow: hidden; color: #fff; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 16px 36px rgba(4,120,87,0.30), inset 0 1px 1px rgba(255,255,255,0.35); }
     .hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.14); border-radius: 50%; filter: blur(2px); }
@@ -119,6 +123,7 @@
     .btn-primary { width: 100%; padding: 14px; background: var(--emerald); color: #fff; border: none; border-radius: var(--r-md); font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all .15s; letter-spacing: -0.2px; touch-action: manipulation; box-shadow: 0 6px 16px rgba(5,150,105,0.30); }
     .btn-primary:hover { background: var(--emerald-dim); }
     .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
     .btn-secondary { width: 100%; padding: 14px; background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border-strong); border-radius: var(--r-md); font-size: 15px; font-weight: 500; font-family: inherit; cursor: pointer; transition: all .15s; display: none; touch-action: manipulation; }
     .modal-btns .btn-secondary { display: block; }
     .btn-today { padding: 10px 14px; background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border-strong); border-radius: var(--r-sm); font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; white-space: nowrap; transition: all .15s; touch-action: manipulation; }
@@ -186,89 +191,153 @@
     .logro-desc { font-size: 12px; color: var(--text-3); line-height: 1.4; }
     .logro-check { position: absolute; top: 12px; right: 12px; width: 22px; height: 22px; border-radius: 50%; background: var(--emerald); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
     @media (max-width: 400px) { .meta-grid { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr; } .hero-amount { font-size: 36px; } .logro-grid { grid-template-columns: 1fr; } }
+
+    /* --- Pantalla de login / registro --- */
+    #authScreen { display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 24px 16px calc(24px + env(safe-area-inset-bottom)); }
+    .auth-card { width: 100%; max-width: 380px; border-radius: var(--r-xl); padding: 32px 26px 28px; }
+    .auth-logo { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 22px; }
+    .auth-logo-mark { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(155deg, #06A87A 0%, var(--emerald-dim) 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 18px rgba(4,120,87,0.30); }
+    .auth-logo-mark svg { width: 22px; height: 22px; stroke: #fff; }
+    .auth-logo-text { font-size: 19px; font-weight: 600; letter-spacing: -0.3px; color: var(--text-1); }
+    .auth-logo-text em { font-style: normal; color: var(--emerald); }
+    .auth-tabs { display: flex; gap: 2px; background: var(--surface-2); border-radius: var(--r-pill); padding: 3px; border: 1px solid var(--border-soft); margin-bottom: 20px; }
+    .auth-tab-btn { flex: 1; padding: 8px; border-radius: var(--r-pill); border: none; cursor: pointer; font-size: 13px; font-weight: 500; font-family: inherit; color: var(--text-2); background: transparent; transition: all .2s cubic-bezier(.4,0,.2,1); touch-action: manipulation; }
+    .auth-tab-btn.active { background: #fff; color: var(--text-1); box-shadow: 0 2px 6px rgba(20,20,25,0.14), inset 0 1px 0 rgba(255,255,255,0.9); }
+    .auth-form { display: flex; flex-direction: column; gap: 12px; }
+    .auth-error { font-size: 12.5px; color: var(--red); min-height: 16px; margin: -2px 0 2px; line-height: 1.4; }
+    .auth-hint { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 16px; line-height: 1.5; }
   </style>
 </head>
 <body>
-<div class="top-bar">
-  <span class="brand-name">Alkaranta <em>Finanzas</em></span>
-  <div class="mode-pill">
-    <button class="mode-btn active" id="btnPersonal" onclick="cambiarModo('personal')">Personal</button>
-    <button class="mode-btn" id="btnLaboral" onclick="cambiarModo('laboral')">Laboral</button>
+
+<!-- ================= PANTALLA DE LOGIN / REGISTRO ================= -->
+<div id="authScreen">
+  <div class="auth-card glass">
+    <div class="auth-logo">
+      <div class="auth-logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h11l4 4v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M16 12h.01"/></svg></div>
+      <span class="auth-logo-text">Alkaranta <em>Finanzas</em></span>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab-btn active" id="authTabLogin">Ingresar</button>
+      <button class="auth-tab-btn" id="authTabRegistro">Crear cuenta</button>
+    </div>
+
+    <div class="auth-error" id="authError"></div>
+
+    <div class="auth-form" id="formLogin">
+      <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="tuemail@ejemplo.com" autocomplete="username"></div>
+      <div class="field"><label>Contraseña</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="btn-primary" id="btnLogin">Ingresar</button>
+    </div>
+
+    <div class="auth-form" id="formRegistro" style="display:none">
+      <div class="field"><label>Email</label><input type="email" id="regEmail" placeholder="tuemail@ejemplo.com" autocomplete="username"></div>
+      <div class="field"><label>Contraseña</label><input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
+      <div class="field"><label>Repetir contraseña</label><input type="password" id="regPassword2" placeholder="••••••••" autocomplete="new-password"></div>
+      <button class="btn-primary" id="btnRegistro">Crear cuenta</button>
+    </div>
+
+    <p class="auth-hint">Tus datos se guardan de forma segura y se sincronizan automáticamente entre todos tus dispositivos.</p>
   </div>
 </div>
-<div class="page">
-  <div class="tab active" id="sec-inicio">
-    <div class="hero">
-      <div class="hero-label">Saldo total</div>
-      <div class="hero-amount" id="saldoTotal">$0</div>
-      <div class="hero-period" id="periodoLabel">Todos los períodos</div>
-      <div class="hero-row">
-        <div class="hero-stat"><div class="hero-stat-label">Ingresos</div><div class="hero-stat-val" id="totalIngresos">$0</div></div>
-        <div class="hero-stat"><div class="hero-stat-label">Egresos</div><div class="hero-stat-val" id="totalEgresos">$0</div></div>
+
+<!-- ================= APP (visible solo con sesión iniciada) ================= -->
+<div id="appScreen" style="display:none">
+  <div class="top-bar">
+    <span class="brand-name">Alkaranta <em>Finanzas</em></span>
+    <div class="topbar-right">
+      <div class="mode-pill">
+        <button class="mode-btn active" id="btnPersonal" onclick="cambiarModo('personal')">Personal</button>
+        <button class="mode-btn" id="btnLaboral" onclick="cambiarModo('laboral')">Laboral</button>
+      </div>
+      <div class="user-chip" id="btnLogout" title="Cerrar sesión">
+        <span class="user-chip-icon">⎋</span>
+        <span class="user-chip-email" id="userEmailLabel"></span>
       </div>
     </div>
-    <div class="sec-label">Resumen</div>
-    <div class="dash-grid">
-      <div class="dash-card wide glass"><div class="dash-card-title">Ingresos vs. egresos</div><div class="bal-bar"><div id="balBarIng" style="width:50%"></div><div id="balBarEgr" style="width:50%"></div></div><div class="bal-legend"><span><i class="dot dot-ing"></i>Ingresos <b id="balPctIng">0%</b></span><span><i class="dot dot-egr"></i>Egresos <b id="balPctEgr">0%</b></span></div></div>
-      <div class="dash-card kpi-card glass"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="kpi-label">Tasa de ahorro <span class="kpi-info-btn" onclick="explicarTasaAhorro()">i</span></div><div class="kpi-val" id="kpiTasa">0%</div></div>
-      <div class="dash-card kpi-card glass"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div><div class="kpi-label">Movimientos</div><div class="kpi-val" id="kpiMovs">0</div></div>
-      <div class="dash-card kpi-card glass"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 3 6-8M14 6h4v4"/></svg></div><div class="kpi-label">Mayor gasto</div><div class="kpi-val kpi-val-sm" id="kpiTopCat">—</div><div class="kpi-sub" id="kpiTopCatMonto">$0</div></div>
-      <div class="dash-card kpi-card glass"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M8 14h2M14 14h2M8 17h2M14 17h2"/></svg></div><div class="kpi-label">Promedio diario</div><div class="kpi-val kpi-val-sm" id="kpiPromedio">$0</div></div>
-    </div>
-    <div class="sec-label">Por categoría</div>
-    <div class="list-group glass" id="listaCategorias"></div>
-    <div style="height:8px"></div>
   </div>
-  <div class="tab" id="sec-movimientos">
-    <div class="sec-label" style="margin-top:20px">Nuevo movimiento</div>
-    <div class="form-card glass">
-      <div class="form-section">
-        <div class="form-section-title">Fecha y tipo</div>
-        <div style="display:flex;gap:8px;margin-bottom:10px"><div class="field" style="flex:1"><label>Fecha</label><input type="date" id="fecha"></div><div style="display:flex;align-items:flex-end"><button class="btn-today" onclick="resetearFecha()">Hoy</button></div></div>
-        <div class="form-grid"><div class="field"><label>Tipo</label><select id="tipo" onchange="actualizarCategorias()"><option value="Ingreso">Ingreso</option><option value="Egreso">Egreso</option></select></div><div class="field"><label>Categoría</label><select id="categoria"></select></div></div>
+  <div class="page">
+    <div class="tab active" id="sec-inicio">
+      <div class="hero">
+        <div class="hero-label">Saldo total</div>
+        <div class="hero-amount" id="saldoTotal">$0</div>
+        <div class="hero-period" id="periodoLabel">Todos los períodos</div>
+        <div class="hero-row">
+          <div class="hero-stat"><div class="hero-stat-label">Ingresos</div><div class="hero-stat-val" id="totalIngresos">$0</div></div>
+          <div class="hero-stat"><div class="hero-stat-label">Egresos</div><div class="hero-stat-val" id="totalEgresos">$0</div></div>
+        </div>
       </div>
-      <div class="form-section">
-        <div class="form-section-title">Detalle</div>
-        <div class="form-grid"><div class="field"><label>Monto</label><input type="number" id="monto" placeholder="0" min="0"></div><div class="field"><label>Descripción</label><input type="text" id="descripcion" placeholder="Opcional"></div></div>
+      <div class="sec-label">Resumen</div>
+      <div class="dash-grid">
+        <div class="dash-card wide glass"><div class="dash-card-title">Ingresos vs. egresos</div><div class="bal-bar"><div id="balBarIng" style="width:50%"></div><div id="balBarEgr" style="width:50%"></div></div><div class="bal-legend"><span><i class="dot dot-ing"></i>Ingresos <b id="balPctIng">0%</b></span><span><i class="dot dot-egr"></i>Egresos <b id="balPctEgr">0%</b></span></div></div>
+        <div class="dash-card kpi-card glass"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="kpi-label">Tasa de ahorro <span class="kpi-info-btn" onclick="explicarTasaAhorro()">i</span></div><div class="kpi-val" id="kpiTasa">0%</div></div>
+        <div class="dash-card kpi-card glass"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div><div class="kpi-label">Movimientos</div><div class="kpi-val" id="kpiMovs">0</div></div>
+        <div class="dash-card kpi-card glass"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 3 6-8M14 6h4v4"/></svg></div><div class="kpi-label">Mayor gasto</div><div class="kpi-val kpi-val-sm" id="kpiTopCat">—</div><div class="kpi-sub" id="kpiTopCatMonto">$0</div></div>
+        <div class="dash-card kpi-card glass"><div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M8 14h2M14 14h2M8 17h2M14 17h2"/></svg></div><div class="kpi-label">Promedio diario</div><div class="kpi-val kpi-val-sm" id="kpiPromedio">$0</div></div>
       </div>
-      <div class="form-section"><div style="display:flex;gap:10px"><button class="btn-primary" id="btnGuardar" onclick="guardarMovimiento()">Guardar</button><button class="btn-secondary" id="btnCancelar" onclick="cancelarEdicion()">Cancelar</button></div></div>
+      <div class="sec-label">Por categoría</div>
+      <div class="list-group glass" id="listaCategorias"></div>
+      <div style="height:8px"></div>
     </div>
-    <div class="sec-label">Historial</div>
-    <div class="filter-row"><select id="filtroMes" onchange="renderizar()"><option value="">Todos los meses</option></select><select id="filtroTipo" onchange="renderizar()"><option value="">Todos</option><option value="Ingreso">Ingresos</option><option value="Egreso">Egresos</option></select><button class="btn-ghost" onclick="exportarCSV()">Exportar</button></div>
-    <div class="list-group glass" id="listaMovimientos"></div>
-    <div style="height:8px"></div>
+    <div class="tab" id="sec-movimientos">
+      <div class="sec-label" style="margin-top:20px">Nuevo movimiento</div>
+      <div class="form-card glass">
+        <div class="form-section">
+          <div class="form-section-title">Fecha y tipo</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px"><div class="field" style="flex:1"><label>Fecha</label><input type="date" id="fecha"></div><div style="display:flex;align-items:flex-end"><button class="btn-today" onclick="resetearFecha()">Hoy</button></div></div>
+          <div class="form-grid"><div class="field"><label>Tipo</label><select id="tipo" onchange="actualizarCategorias()"><option value="Ingreso">Ingreso</option><option value="Egreso">Egreso</option></select></div><div class="field"><label>Categoría</label><select id="categoria"></select></div></div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Detalle</div>
+          <div class="form-grid"><div class="field"><label>Monto</label><input type="number" id="monto" placeholder="0" min="0"></div><div class="field"><label>Descripción</label><input type="text" id="descripcion" placeholder="Opcional"></div></div>
+        </div>
+        <div class="form-section"><div style="display:flex;gap:10px"><button class="btn-primary" id="btnGuardar" onclick="guardarMovimiento()">Guardar</button><button class="btn-secondary" id="btnCancelar" onclick="cancelarEdicion()">Cancelar</button></div></div>
+      </div>
+      <div class="sec-label">Historial</div>
+      <div class="filter-row"><select id="filtroMes" onchange="renderizar()"><option value="">Todos los meses</option></select><select id="filtroTipo" onchange="renderizar()"><option value="">Todos</option><option value="Ingreso">Ingresos</option><option value="Egreso">Egresos</option></select><button class="btn-ghost" onclick="exportarCSV()">Exportar</button></div>
+      <div class="list-group glass" id="listaMovimientos"></div>
+      <div style="height:8px"></div>
+    </div>
+    <div class="tab" id="sec-presupuesto">
+      <div class="sec-label" style="margin-top:20px">Presupuesto mensual</div>
+      <p style="font-size:13px;color:var(--text-3);margin-bottom:14px">Seguí tus límites de gasto por categoría.</p>
+      <div class="list-group glass" id="budgetList"></div>
+      <button class="btn-add-budget" onclick="abrirModalPresupuesto()">+ Agregar categoría</button>
+      <div style="height:8px"></div>
+    </div>
+    <div class="tab" id="sec-metas">
+      <div class="sec-label" style="margin-top:20px">Metas de ahorro</div>
+      <p style="font-size:13px;color:var(--text-3);margin-bottom:14px">Seguí tus objetivos y sumá progreso cuando quieras.</p>
+      <div class="meta-grid" id="metaGrid"></div>
+      <div style="height:8px"></div>
+    </div>
+    <div class="tab" id="sec-logros">
+      <div class="sec-label" style="margin-top:20px">Logros desbloqueados</div>
+      <p style="font-size:13px;color:var(--text-3);margin-bottom:14px">Usá la app y desbloqueá logros a medida que avanzás.</p>
+      <div class="logro-progress glass" style="border-radius:var(--r-lg);padding:16px"><div class="logro-progress-head"><div><div class="logro-progress-num" id="logrosCount">0 / 15</div><div class="logro-progress-label">Completados</div></div></div><div class="prog-bar" style="height:6px"><div class="prog-fill ok" id="logrosBar" style="width:0%"></div></div></div>
+      <div class="logro-grid" id="logrosGrid"></div>
+      <div style="height:8px"></div>
+    </div>
   </div>
-  <div class="tab" id="sec-presupuesto">
-    <div class="sec-label" style="margin-top:20px">Presupuesto mensual</div>
-    <p style="font-size:13px;color:var(--text-3);margin-bottom:14px">Seguí tus límites de gasto por categoría.</p>
-    <div class="list-group glass" id="budgetList"></div>
-    <button class="btn-add-budget" onclick="abrirModalPresupuesto()">+ Agregar categoría</button>
-    <div style="height:8px"></div>
-  </div>
-  <div class="tab" id="sec-metas">
-    <div class="sec-label" style="margin-top:20px">Metas de ahorro</div>
-    <p style="font-size:13px;color:var(--text-3);margin-bottom:14px">Seguí tus objetivos y sumá progreso cuando quieras.</p>
-    <div class="meta-grid" id="metaGrid"></div>
-    <div style="height:8px"></div>
-  </div>
-  <div class="tab" id="sec-logros">
-    <div class="sec-label" style="margin-top:20px">Logros desbloqueados</div>
-    <p style="font-size:13px;color:var(--text-3);margin-bottom:14px">Usá la app y desbloqueá logros a medida que avanzás.</p>
-    <div class="logro-progress glass" style="border-radius:var(--r-lg);padding:16px"><div class="logro-progress-head"><div><div class="logro-progress-num" id="logrosCount">0 / 15</div><div class="logro-progress-label">Completados</div></div></div><div class="prog-bar" style="height:6px"><div class="prog-fill ok" id="logrosBar" style="width:0%"></div></div></div>
-    <div class="logro-grid" id="logrosGrid"></div>
-    <div style="height:8px"></div>
-  </div>
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="cambiarTab('inicio',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span>Inicio</button>
+    <button class="nav-btn" onclick="cambiarTab('movimientos',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 9V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/><rect x="7" y="9" width="15" height="11" rx="2"/><circle cx="16" cy="14.5" r="1.6"/></svg></span>Movimientos</button>
+    <button class="nav-btn" onclick="cambiarTab('presupuesto',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.8" fill="currentColor" stroke="none"/></svg></span>Presupuesto</button>
+    <button class="nav-btn" onclick="cambiarTab('metas',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L12 16.9 6.4 20l1.4-6.2-4.8-4.3 6.4-.6L12 3z"/></svg></span>Metas</button>
+    <button class="nav-btn" onclick="cambiarTab('logros',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span>Logros</button>
+  </nav>
+  <div class="overlay" id="modalPresupuesto"><div class="modal-sheet"><div class="modal-title">Agregar presupuesto</div><div class="modal-btns" style="margin-bottom:16px"><button class="btn-primary" onclick="guardarPresupuesto()">Guardar</button><button class="btn-secondary" onclick="cerrarModales()">Cancelar</button></div><div class="modal-field field"><label>Categoría</label><select id="budgetCat"></select></div><div class="modal-field field"><label>Límite mensual</label><input type="number" id="budgetMonto" placeholder="0" min="0" inputmode="decimal"></div></div></div>
+  <div class="overlay" id="modalMeta"><div class="modal-sheet"><div class="modal-title">Nueva meta</div><div class="modal-btns" style="margin-bottom:16px"><button class="btn-primary" onclick="guardarMeta()">Guardar</button><button class="btn-secondary" onclick="cerrarModales()">Cancelar</button></div><div class="modal-field field"><label>Nombre</label><input type="text" id="metaNombre" placeholder="Ej: Vacaciones, Auto..."></div><div class="form-grid" style="margin-bottom:12px"><div class="field"><label>Objetivo ($)</label><input type="number" id="metaObjetivo" placeholder="0" min="0" inputmode="decimal"></div><div class="field"><label>Ya ahorrado ($)</label><input type="number" id="metaAhorrado" placeholder="0" min="0" inputmode="decimal"></div></div><div class="modal-field field"><label>Ícono</label><select id="metaIcono"><option value="🏖️">🏖️ Vacaciones</option><option value="🚗">🚗 Auto</option><option value="🏠">🏠 Casa</option><option value="📱">📱 Tecnología</option><option value="🎓">🎓 Educación</option><option value="💊">💊 Salud</option><option value="⭐">⭐ Otro</option></select></div></div></div>
+  <div class="overlay" id="modalAhorro"><div class="modal-sheet"><div class="modal-title" id="modalAhorroTitulo">Agregar ahorro</div><div class="modal-btns" style="margin-bottom:16px"><button class="btn-primary" onclick="confirmarAhorro()">Agregar</button><button class="btn-secondary" onclick="cerrarModales()">Cancelar</button></div><div class="modal-field field"><label>Monto a agregar ($)</label><input type="number" id="ahorroMonto" placeholder="0" min="0" inputmode="decimal"></div></div></div>
 </div>
-<nav class="bottom-nav">
-  <button class="nav-btn active" onclick="cambiarTab('inicio',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span>Inicio</button>
-  <button class="nav-btn" onclick="cambiarTab('movimientos',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 9V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/><rect x="7" y="9" width="15" height="11" rx="2"/><circle cx="16" cy="14.5" r="1.6"/></svg></span>Movimientos</button>
-  <button class="nav-btn" onclick="cambiarTab('presupuesto',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.8" fill="currentColor" stroke="none"/></svg></span>Presupuesto</button>
-  <button class="nav-btn" onclick="cambiarTab('metas',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L12 16.9 6.4 20l1.4-6.2-4.8-4.3 6.4-.6L12 3z"/></svg></span>Metas</button>
-  <button class="nav-btn" onclick="cambiarTab('logros',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span>Logros</button>
-</nav>
-<div class="overlay" id="modalPresupuesto"><div class="modal-sheet"><div class="modal-title">Agregar presupuesto</div><div class="modal-btns" style="margin-bottom:16px"><button class="btn-primary" onclick="guardarPresupuesto()">Guardar</button><button class="btn-secondary" onclick="cerrarModales()">Cancelar</button></div><div class="modal-field field"><label>Categoría</label><select id="budgetCat"></select></div><div class="modal-field field"><label>Límite mensual</label><input type="number" id="budgetMonto" placeholder="0" min="0" inputmode="decimal"></div></div></div>
-<div class="overlay" id="modalMeta"><div class="modal-sheet"><div class="modal-title">Nueva meta</div><div class="modal-btns" style="margin-bottom:16px"><button class="btn-primary" onclick="guardarMeta()">Guardar</button><button class="btn-secondary" onclick="cerrarModales()">Cancelar</button></div><div class="modal-field field"><label>Nombre</label><input type="text" id="metaNombre" placeholder="Ej: Vacaciones, Auto..."></div><div class="form-grid" style="margin-bottom:12px"><div class="field"><label>Objetivo ($)</label><input type="number" id="metaObjetivo" placeholder="0" min="0" inputmode="decimal"></div><div class="field"><label>Ya ahorrado ($)</label><input type="number" id="metaAhorrado" placeholder="0" min="0" inputmode="decimal"></div></div><div class="modal-field field"><label>Ícono</label><select id="metaIcono"><option value="🏖️">🏖️ Vacaciones</option><option value="🚗">🚗 Auto</option><option value="🏠">🏠 Casa</option><option value="📱">📱 Tecnología</option><option value="🎓">🎓 Educación</option><option value="💊">💊 Salud</option><option value="⭐">⭐ Otro</option></select></div></div></div>
-<div class="overlay" id="modalAhorro"><div class="modal-sheet"><div class="modal-title" id="modalAhorroTitulo">Agregar ahorro</div><div class="modal-btns" style="margin-bottom:16px"><button class="btn-primary" onclick="confirmarAhorro()">Agregar</button><button class="btn-secondary" onclick="cerrarModales()">Cancelar</button></div><div class="modal-field field"><label>Monto a agregar ($)</label><input type="number" id="ahorroMonto" placeholder="0" min="0" inputmode="decimal"></div></div></div>
+
+<!-- Firebase (Authentication + Firestore) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="auth.js"></script>
 <script src="app.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
