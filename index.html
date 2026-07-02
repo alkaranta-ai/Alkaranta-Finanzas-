@@ -299,6 +299,7 @@
           <div class="form-section-title">Fecha y tipo</div>
           <div style="display:flex;gap:8px;margin-bottom:10px"><div class="field" style="flex:1"><label>Fecha</label><input type="date" id="fecha"></div><div style="display:flex;align-items:flex-end"><button class="btn-today" onclick="resetearFecha()">Hoy</button></div></div>
           <div class="form-grid"><div class="field"><label>Tipo</label><select id="tipo" onchange="actualizarCategorias()"><option value="Ingreso">Ingreso</option><option value="Egreso">Egreso</option></select></div><div class="field"><label>Categoría</label><select id="categoria"></select></div></div>
+          <div style="display:flex;justify-content:flex-end;margin-top:10px"><button type="button" class="btn-ghost" onclick="abrirModalCategorias()" style="font-size:12px;padding:6px 12px">✏️ Editar mis categorías</button></div>
         </div>
         <div class="form-section">
           <div class="form-section-title">Detalle</div>
@@ -342,6 +343,21 @@
   <div class="overlay" id="modalPresupuesto"><div class="modal-sheet"><div class="modal-title">Agregar presupuesto</div><div class="modal-btns" style="margin-bottom:16px"><button class="btn-primary" onclick="guardarPresupuesto()">Guardar</button><button class="btn-secondary" onclick="cerrarModales()">Cancelar</button></div><div class="modal-field field"><label>Categoría</label><select id="budgetCat"></select></div><div class="modal-field field"><label>Límite mensual</label><input type="number" id="budgetMonto" placeholder="0" min="0" inputmode="decimal"></div></div></div>
   <div class="overlay" id="modalMeta"><div class="modal-sheet"><div class="modal-title">Nueva meta</div><div class="modal-btns" style="margin-bottom:16px"><button class="btn-primary" onclick="guardarMeta()">Guardar</button><button class="btn-secondary" onclick="cerrarModales()">Cancelar</button></div><div class="modal-field field"><label>Nombre</label><input type="text" id="metaNombre" placeholder="Ej: Vacaciones, Auto..."></div><div class="form-grid" style="margin-bottom:12px"><div class="field"><label>Objetivo ($)</label><input type="number" id="metaObjetivo" placeholder="0" min="0" inputmode="decimal"></div><div class="field"><label>Ya ahorrado ($)</label><input type="number" id="metaAhorrado" placeholder="0" min="0" inputmode="decimal"></div></div><div class="modal-field field"><label>Ícono</label><select id="metaIcono"><option value="🏖️">🏖️ Vacaciones</option><option value="🚗">🚗 Auto</option><option value="🏠">🏠 Casa</option><option value="📱">📱 Tecnología</option><option value="🎓">🎓 Educación</option><option value="💊">💊 Salud</option><option value="⭐">⭐ Otro</option></select></div></div></div>
   <div class="overlay" id="modalAhorro"><div class="modal-sheet"><div class="modal-title" id="modalAhorroTitulo">Agregar ahorro</div><div class="modal-btns" style="margin-bottom:16px"><button class="btn-primary" onclick="confirmarAhorro()">Agregar</button><button class="btn-secondary" onclick="cerrarModales()">Cancelar</button></div><div class="modal-field field"><label>Monto a agregar ($)</label><input type="number" id="ahorroMonto" placeholder="0" min="0" inputmode="decimal"></div></div></div>
+  <div class="overlay" id="modalCategorias">
+    <div class="modal-sheet">
+      <div class="modal-title">Editar mis categorías</div>
+      <div class="auth-tabs" style="margin-bottom:14px">
+        <button class="auth-tab-btn active" id="catTabIngreso" type="button" onclick="cambiarTabCategoria('Ingreso')">Ingresos</button>
+        <button class="auth-tab-btn" id="catTabEgreso" type="button" onclick="cambiarTabCategoria('Egreso')">Egresos</button>
+      </div>
+      <div class="list-group glass" id="listaCategoriasEdit" style="margin-bottom:14px;max-height:260px;overflow-y:auto"></div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <input type="text" id="nuevaCategoriaInput" placeholder="Nueva categoría..." maxlength="30" style="flex:1;padding:10px 12px;background:var(--surface-input);color:var(--text-1);border:1px solid var(--border-strong);border-radius:var(--r-sm);font-size:15px;font-family:inherit">
+        <button class="btn-ghost" type="button" onclick="agregarCategoria()">+ Agregar</button>
+      </div>
+      <div class="modal-btns"><button class="btn-primary" onclick="cerrarModales()">Listo</button></div>
+    </div>
+  </div>
 </div>
 
 <!-- Firebase (Authentication + Firestore) -->
