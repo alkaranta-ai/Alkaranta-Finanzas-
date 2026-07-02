@@ -67,6 +67,7 @@ var tabCategoriaActual = 'Ingreso';
 var movimientos  = [];
 var presupuestos = {};
 var metas        = [];
+var recurrentes  = [];
 var logrosDesbloqueados = [];
 
 var modoActual   = 'personal';
@@ -86,6 +87,7 @@ function suscribirDatos(uid) {
     movimientos = data.movimientos || [];
     presupuestos = data.presupuestos || {};
     metas = data.metas || [];
+    recurrentes = data.recurrentes || [];
     logrosDesbloqueados = data.logros || [];
 
     if (data.categorias && data.categorias.Ingreso && data.categorias.Ingreso.length && data.categorias.Egreso && data.categorias.Egreso.length) {
@@ -118,6 +120,7 @@ function guardarDatos() {
     movimientos: movimientos,
     presupuestos: presupuestos,
     metas: metas,
+    recurrentes: recurrentes,
     logros: logrosDesbloqueados,
     categorias: categorias
   }, { merge: true }).catch(function(err) {
@@ -130,10 +133,16 @@ function inicializarUI() {
   document.getElementById("fecha").value = new Date().toISOString().split("T")[0];
   actualizarCategorias();
   poblarFiltroMeses();
+  generarMovimientosRecurrentes();
   renderizar();
   renderPresupuesto();
   renderMetas();
   renderLogros();
+  verificarRecordatorioDiario();
+  setInterval(verificarRecordatorioDiario, 30 * 60 * 1000);
+  document.addEventListener("visibilitychange", function() {
+    if (!document.hidden) verificarRecordatorioDiario();
+  });
   document.querySelectorAll(".overlay").forEach(function(m) {
     m.addEventListener("click", function(e) { if (e.target === m) cerrarModales(); });
   });
@@ -186,25 +195,51 @@ function actualizarCategorias() {
 // Movimientos
 // ---------------------------------------------------------------
 
+function toggleFrecuencia() {
+  var chk = document.getElementById("esRecurrente");
+  document.getElementById("campoFrecuencia").style.display = chk.checked ? "block" : "none";
+}
+
+function resetearRecurrente() {
+  document.getElementById("esRecurrente").checked = false;
+  toggleFrecuencia();
+}
+
 function guardarMovimiento() {
   var fecha       = document.getElementById("fecha").value;
   var tipo        = document.getElementById("tipo").value;
   var categoria   = document.getElementById("categoria").value;
   var monto       = Number(document.getElementById("monto").value);
   var descripcion = document.getElementById("descripcion").value.trim();
+  var esRecurrente = document.getElementById("esRecurrente").checked;
+  var frecuencia    = document.getElementById("frecuencia").value;
   if (!monto || monto <= 0) { alert("Ingresá un monto válido."); return; }
   if (!fecha) { alert("Seleccioná una fecha."); return; }
   if (!categoria) { alert("Seleccioná o creá una categoría."); return; }
   var mov = { fecha: fecha, tipo: tipo, categoria: categoria, monto: monto, descripcion: descripcion, entidad: modoActual };
   if (editandoIdx !== null) {
+    // Si el movimiento editado ya pertenecía a un recurrente, conservamos el vínculo.
+    if (movimientos[editandoIdx] && movimientos[editandoIdx].recurrenteId) {
+      mov.recurrenteId = movimientos[editandoIdx].recurrenteId;
+    }
     movimientos[editandoIdx] = mov;
     editandoIdx = null;
     document.getElementById("btnGuardar").textContent = "Guardar";
     document.getElementById("btnCancelar").style.display = "none";
   } else {
+    if (esRecurrente) {
+      var recId = "r" + Date.now();
+      recurrentes.push({
+        id: recId, tipo: tipo, categoria: categoria, monto: monto,
+        descripcion: descripcion, frecuencia: frecuencia, fechaInicio: fecha,
+        entidad: modoActual, activo: true
+      });
+      mov.recurrenteId = recId;
+    }
     movimientos.push(mov);
   }
-  guardarDatos(); limpiar(); poblarFiltroMeses(); renderizar(); renderPresupuesto();
+  guardarDatos(); limpiar(); resetearRecurrente(); poblarFiltroMeses(); renderizar(); renderPresupuesto();
+  generarMovimientosRecurrentes();
   checkLogros();
 }
 
@@ -218,6 +253,7 @@ function cancelarEdicion() {
   document.getElementById("btnGuardar").textContent = "Guardar";
   document.getElementById("btnCancelar").style.display = "none";
   limpiar();
+  resetearRecurrente();
 }
 
 function editarMovimiento(i) {
@@ -232,6 +268,9 @@ function editarMovimiento(i) {
   document.getElementById("descripcion").value = m.descripcion || "";
   document.getElementById("btnGuardar").textContent = "Actualizar";
   document.getElementById("btnCancelar").style.display = "block";
+  document.getElementById("esRecurrente").checked = false;
+  document.getElementById("esRecurrente").disabled = !!m.recurrenteId;
+  toggleFrecuencia();
   cambiarTab('movimientos', document.querySelectorAll('.nav-btn')[1]);
   setTimeout(function() { document.querySelector('.form-card').scrollIntoView({ behavior: "smooth" }); }, 100);
 }
@@ -264,6 +303,20 @@ function poblarFiltroMeses() {
     if (mes === actual) o.selected = true;
     sel.appendChild(o);
   });
+}
+
+function ordenarMovimientos(lista) {
+  var selOrden = document.getElementById("filtroOrden");
+  var orden = selOrden ? selOrden.value : "fecha_desc";
+  var copia = lista.slice();
+  copia.sort(function(a, b) {
+    if (orden === "monto_desc") return b.monto - a.monto;
+    if (orden === "monto_asc")  return a.monto - b.monto;
+    var fa = a.fecha || "", fb = b.fecha || "";
+    if (orden === "fecha_asc") return fa < fb ? -1 : fa > fb ? 1 : 0;
+    return fa < fb ? 1 : fa > fb ? -1 : 0; // fecha_desc (default)
+  });
+  return copia;
 }
 
 function renderizar() {
@@ -300,7 +353,7 @@ function renderizar() {
   if (filtrados.length === 0) {
     lista.innerHTML = '<div class="empty"><span class="empty-icon">📭</span>Sin movimientos para mostrar.</div>';
   } else {
-    filtrados.slice().reverse().forEach(function(mov) {
+    ordenarMovimientos(filtrados).forEach(function(mov) {
       var idx = movimientos.indexOf(mov);
       var fecha = mov.fecha
         ? new Date(mov.fecha + "T00:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "short" })
@@ -312,7 +365,7 @@ function renderizar() {
         '<div class="list-row-left">' +
           '<div class="list-icon ' + (isIng ? 'ing' : 'egr') + '">' + (isIng ? '↑' : '↓') + '</div>' +
           '<div>' +
-            '<div class="list-title">' + mov.categoria + '</div>' +
+            '<div class="list-title">' + (mov.recurrenteId ? '🔁 ' : '') + mov.categoria + '</div>' +
             '<div class="list-sub">' + (mov.descripcion || mov.tipo) + '</div>' +
           '</div>' +
         '</div>' +
@@ -330,6 +383,8 @@ function renderizar() {
 
   actualizarCategoriasList(filtrados);
   renderDashboard(ingresos, egresos, filtrados, filtroMes);
+  renderInsights();
+  actualizarBannerRecordatorio();
 }
 
 function actualizarCategoriasList(filtrados) {
@@ -408,6 +463,250 @@ function explicarTasaAhorro() {
     "Para que sea correcta, registrá tus ingresos y egresos en 'Movimientos'.\n\n" +
     "Si querés guardar para un objetivo (vacaciones, auto, etc.), usá la pestaña 'Metas'."
   );
+}
+
+// ---------------------------------------------------------------
+// Insights automáticos
+// ---------------------------------------------------------------
+
+function mesAnteriorISO(mesISO) {
+  var p = mesISO.split("-").map(Number);
+  var d = new Date(p[0], p[1] - 1, 1);
+  d.setMonth(d.getMonth() - 1);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+}
+
+function generarInsights() {
+  var insights = [];
+  var hoy = new Date();
+  var mesActual = hoy.toISOString().slice(0, 7);
+  var mesAnt = mesAnteriorISO(mesActual);
+  var delModo = movimientos.filter(pertenece);
+
+  var delMesActual = delModo.filter(function(m) { return m.fecha && m.fecha.startsWith(mesActual); });
+  var delMesAnt    = delModo.filter(function(m) { return m.fecha && m.fecha.startsWith(mesAnt); });
+
+  var egrActual = delMesActual.filter(function(m) { return m.tipo === "Egreso"; }).reduce(function(s, m) { return s + m.monto; }, 0);
+  var egrAnt    = delMesAnt.filter(function(m) { return m.tipo === "Egreso"; }).reduce(function(s, m) { return s + m.monto; }, 0);
+  var ingActual = delMesActual.filter(function(m) { return m.tipo === "Ingreso"; }).reduce(function(s, m) { return s + m.monto; }, 0);
+  var ingAnt    = delMesAnt.filter(function(m) { return m.tipo === "Ingreso"; }).reduce(function(s, m) { return s + m.monto; }, 0);
+
+  // 1) Comparación de gasto total vs. mes anterior
+  if (egrAnt > 0) {
+    var variacion = Math.round(((egrActual - egrAnt) / egrAnt) * 100);
+    if (variacion >= 15) {
+      insights.push({ icon: "📈", tipo: "alerta", texto: "Gastaste " + variacion + "% más que el mes pasado ($" + egrActual.toLocaleString("es-AR") + " vs. $" + egrAnt.toLocaleString("es-AR") + ")." });
+    } else if (variacion <= -15) {
+      insights.push({ icon: "📉", tipo: "positivo", texto: "Gastaste " + Math.abs(variacion) + "% menos que el mes pasado. ¡Buen trabajo!" });
+    }
+  }
+
+  // 2) Categoría con mayor incremento respecto al mes anterior
+  var porCatActual = {}, porCatAnt = {};
+  delMesActual.filter(function(m) { return m.tipo === "Egreso"; }).forEach(function(m) { porCatActual[m.categoria] = (porCatActual[m.categoria] || 0) + m.monto; });
+  delMesAnt.filter(function(m) { return m.tipo === "Egreso"; }).forEach(function(m) { porCatAnt[m.categoria] = (porCatAnt[m.categoria] || 0) + m.monto; });
+  var mayorIncrementoCat = null, mayorIncrementoVal = 0;
+  Object.keys(porCatActual).forEach(function(cat) {
+    var dif = porCatActual[cat] - (porCatAnt[cat] || 0);
+    if (dif > mayorIncrementoVal) { mayorIncrementoVal = dif; mayorIncrementoCat = cat; }
+  });
+  if (mayorIncrementoCat && (porCatAnt[mayorIncrementoCat] || 0) > 0) {
+    insights.push({ icon: "🔍", tipo: "info", texto: '"' + mayorIncrementoCat + '" es la categoría que más creció este mes: +$' + mayorIncrementoVal.toLocaleString("es-AR") + " respecto al mes anterior." });
+  }
+
+  // 3) Proyección de gasto de fin de mes
+  var diaHoy = hoy.getDate();
+  var diasDelMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
+  if (diaHoy >= 5 && egrActual > 0 && diaHoy < diasDelMes) {
+    var proyeccion = Math.round((egrActual / diaHoy) * diasDelMes);
+    insights.push({ icon: "🔮", tipo: "info", texto: "A este ritmo, vas a terminar el mes con aproximadamente $" + proyeccion.toLocaleString("es-AR") + " en egresos." });
+  }
+
+  // 4) Presupuestos en riesgo
+  var keysPres = Object.keys(presupuestos).filter(function(k) { return k.startsWith(modoActual + "_"); });
+  keysPres.forEach(function(key) {
+    var cat = key.replace(modoActual + "_", "");
+    var limite = presupuestos[key];
+    var gastado = delMesActual.filter(function(m) { return m.tipo === "Egreso" && m.categoria === cat; }).reduce(function(s, m) { return s + m.monto; }, 0);
+    var pct = limite > 0 ? gastado / limite : 0;
+    if (pct >= 0.85 && diaHoy < diasDelMes) {
+      insights.push({ icon: "⚠️", tipo: "alerta", texto: 'Ya usaste el ' + Math.round(pct * 100) + '% del presupuesto de "' + cat + '" y todavía quedan ' + (diasDelMes - diaHoy) + ' días del mes.' });
+    }
+  });
+
+  // 5) Mejora en tasa de ahorro
+  if (ingActual > 0 && ingAnt > 0) {
+    var tasaActual = ((ingActual - egrActual) / ingActual) * 100;
+    var tasaAnt = ((ingAnt - egrAnt) / ingAnt) * 100;
+    if (tasaActual > tasaAnt + 5) {
+      insights.push({ icon: "💪", tipo: "positivo", texto: "Tu tasa de ahorro subió de " + Math.round(tasaAnt) + "% a " + Math.round(tasaActual) + "% respecto al mes pasado." });
+    }
+  }
+
+  return insights.slice(0, 4);
+}
+
+function renderInsights() {
+  var cont = document.getElementById("insightsList");
+  if (!cont) return;
+  var insights = generarInsights();
+  cont.innerHTML = "";
+  if (insights.length === 0) {
+    cont.innerHTML = '<div class="empty"><span class="empty-icon">✨</span>Todavía no hay suficientes datos para generar insights.</div>';
+    return;
+  }
+  insights.forEach(function(ins) {
+    var div = document.createElement("div");
+    div.className = "insight-card glass " + ins.tipo;
+    div.innerHTML = '<span class="insight-icon">' + ins.icon + '</span><span class="insight-text">' + ins.texto + '</span>';
+    cont.appendChild(div);
+  });
+}
+
+// ---------------------------------------------------------------
+// Recordatorio de carga diaria
+// ---------------------------------------------------------------
+
+var REMINDER_HOUR = 20; // hora local a partir de la cual se sugiere el recordatorio
+
+function hoyISO() { return new Date().toISOString().split("T")[0]; }
+
+function tieneMovimientoHoy() {
+  var hoy = hoyISO();
+  return movimientos.some(function(m) { return m.fecha === hoy; });
+}
+
+function actualizarBannerRecordatorio() {
+  var banner = document.getElementById("reminderBanner");
+  if (!banner) return;
+  if (tieneMovimientoHoy()) { banner.style.display = "none"; return; }
+  var dismissKey = "alkaranta_reminder_dismiss_" + hoyISO();
+  if (localStorage.getItem(dismissKey)) { banner.style.display = "none"; return; }
+  var sub = document.getElementById("reminderSub");
+  if (typeof Notification !== "undefined" && Notification.permission === "default") {
+    sub.textContent = "Activá recordatorios para que te avisemos cada día.";
+  } else {
+    sub.textContent = "Todavía no cargaste ningún movimiento hoy.";
+  }
+  banner.style.display = "flex";
+}
+
+function accionRecordatorio() {
+  if (typeof Notification !== "undefined" && Notification.permission === "default") {
+    Notification.requestPermission().then(function() { actualizarBannerRecordatorio(); });
+  }
+  cambiarTab("movimientos", document.querySelectorAll(".nav-btn")[1]);
+}
+
+function cerrarBannerRecordatorio() {
+  localStorage.setItem("alkaranta_reminder_dismiss_" + hoyISO(), "1");
+  document.getElementById("reminderBanner").style.display = "none";
+}
+
+function verificarRecordatorioDiario() {
+  actualizarBannerRecordatorio();
+  var ahora = new Date();
+  if (ahora.getHours() < REMINDER_HOUR) return;
+  if (tieneMovimientoHoy()) return;
+  var lastNotifKey = "alkaranta_last_notif";
+  if (localStorage.getItem(lastNotifKey) === hoyISO()) return;
+  if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+    try {
+      new Notification("Alkaranta Finanzas", {
+        body: "No registraste movimientos hoy. ¡No te olvides de cargarlos!",
+        icon: "icono-192.png",
+        tag: "recordatorio-diario"
+      });
+      localStorage.setItem(lastNotifKey, hoyISO());
+    } catch (e) { /* Notification no soportado o bloqueado: no hacemos nada */ }
+  }
+}
+
+// ---------------------------------------------------------------
+// Movimientos recurrentes
+// ---------------------------------------------------------------
+
+function sumarFrecuencia(fechaISO, frecuencia, n) {
+  var d = new Date(fechaISO + "T00:00:00");
+  if (frecuencia === "semanal") d.setDate(d.getDate() + 7 * n);
+  else if (frecuencia === "quincenal") d.setDate(d.getDate() + 15 * n);
+  else d.setMonth(d.getMonth() + n); // mensual (default)
+  return d.toISOString().split("T")[0];
+}
+
+function generarMovimientosRecurrentes() {
+  var hoy = hoyISO();
+  var huboCambios = false;
+  recurrentes.forEach(function(r) {
+    if (!r.activo) return;
+    var n = 1;
+    while (true) {
+      var fechaCandidata = sumarFrecuencia(r.fechaInicio, r.frecuencia, n);
+      if (fechaCandidata > hoy) break;
+      var yaExiste = movimientos.some(function(m) { return m.recurrenteId === r.id && m.fecha === fechaCandidata; });
+      if (!yaExiste) {
+        movimientos.push({
+          fecha: fechaCandidata, tipo: r.tipo, categoria: r.categoria, monto: r.monto,
+          descripcion: r.descripcion, entidad: r.entidad, recurrenteId: r.id
+        });
+        huboCambios = true;
+      }
+      n++;
+      if (n > 500) break; // salvaguarda ante datos corruptos
+    }
+  });
+  if (huboCambios) {
+    guardarDatos(); poblarFiltroMeses(); renderizar(); renderPresupuesto(); checkLogros();
+  }
+}
+
+function abrirModalRecurrentes() {
+  renderListaRecurrentes();
+  document.getElementById("modalRecurrentes").classList.add("open");
+}
+
+function renderListaRecurrentes() {
+  var cont = document.getElementById("listaRecurrentes");
+  cont.innerHTML = "";
+  var delModo = recurrentes.filter(function(r) { return (r.entidad || "personal") === modoActual; });
+  if (delModo.length === 0) {
+    cont.innerHTML = '<div class="empty" style="padding:24px"><span class="empty-icon">🔁</span>No tenés movimientos recurrentes. Marcá "Repetir automáticamente" al cargar uno nuevo.</div>';
+    return;
+  }
+  delModo.forEach(function(r) {
+    var idx = recurrentes.indexOf(r);
+    var freqLabel = r.frecuencia === "semanal" ? "Semanal" : r.frecuencia === "quincenal" ? "Quincenal" : "Mensual";
+    var isIng = r.tipo === "Ingreso";
+    var row = document.createElement("div");
+    row.className = "list-row";
+    row.innerHTML =
+      '<div class="list-row-left">' +
+        '<div class="list-icon ' + (isIng ? 'ing' : 'egr') + '">' + (isIng ? '↑' : '↓') + '</div>' +
+        '<div>' +
+          '<div class="list-title">' + r.categoria + '</div>' +
+          '<div class="list-sub">' + freqLabel + ' · $' + r.monto.toLocaleString("es-AR") + (r.activo ? '' : ' · pausado') + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="list-actions">' +
+        '<button class="btn-row-action" onclick="toggleRecurrente(' + idx + ')">' + (r.activo ? '⏸️' : '▶️') + '</button>' +
+        '<button class="btn-row-action" onclick="eliminarRecurrente(' + idx + ')">🗑️</button>' +
+      '</div>';
+    cont.appendChild(row);
+  });
+}
+
+function toggleRecurrente(idx) {
+  recurrentes[idx].activo = !recurrentes[idx].activo;
+  guardarDatos();
+  renderListaRecurrentes();
+  if (recurrentes[idx].activo) generarMovimientosRecurrentes();
+}
+
+function eliminarRecurrente(idx) {
+  if (!confirm("¿Eliminar este movimiento recurrente? Los movimientos ya generados no se borran.")) return;
+  recurrentes.splice(idx, 1);
+  guardarDatos();
+  renderListaRecurrentes();
 }
 
 // ---------------------------------------------------------------
