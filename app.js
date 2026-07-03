@@ -177,18 +177,18 @@ function moverIndicadorNav(btn, sinTransicion) {
   if (!indicador || !nav || !btn) return;
   var navRect = nav.getBoundingClientRect();
   var btnRect = btn.getBoundingClientRect();
-  var blobWidth = 48; // ancho fijo de la gota, centrada bajo el ícono del botón
-  var left = (btnRect.left - navRect.left) + (btnRect.width - blobWidth) / 2;
+  var left = btnRect.left - navRect.left;
+  var width = btnRect.width;
   if (sinTransicion) {
     var prevTransition = indicador.style.transition;
     indicador.style.transition = "none";
-    indicador.style.width = blobWidth + "px";
+    indicador.style.width = width + "px";
     indicador.style.transform = "translateX(" + left + "px)";
     // Forzar reflow antes de restaurar la transición.
     indicador.offsetHeight;
     indicador.style.transition = prevTransition || "";
   } else {
-    indicador.style.width = blobWidth + "px";
+    indicador.style.width = width + "px";
     indicador.style.transform = "translateX(" + left + "px)";
   }
 }
