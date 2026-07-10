@@ -54,7 +54,6 @@
       --shadow-nav: 0 18px 40px rgba(20,20,25,0.18), 0 2px 8px rgba(20,20,25,0.10), inset 0 1px 1px rgba(255,255,255,0.9);
       --blur: blur(28px) saturate(190%);
       --blur-dock: blur(34px) saturate(200%);
-      /* Specular rim: the bright light-catching edge that reads as "glass" rather than "frosted plastic" */
       --rim-light: rgba(255,255,255,0.95);
       --rim-dim:   rgba(255,255,255,0.05);
       --sheen: linear-gradient(120deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0) 55%);
@@ -381,7 +380,6 @@
       overflow: hidden;
     }
     .bottom-nav::before {
-      /* top specular rim: the bright edge that makes it read as curved glass, not a flat panel */
       content: '';
       position: absolute;
       inset: 0;
@@ -389,7 +387,7 @@
       pointer-events: none;
       z-index: 0;
     }
-    .bottom-nav { --nav-count: 5; --nav-index: 0; }
+    .bottom-nav { --nav-count: 6; --nav-index: 0; }
     .nav-indicator {
       position: absolute;
       top: 7px;
@@ -451,6 +449,27 @@
     .auth-form { display: flex; flex-direction: column; gap: 12px; }
     .auth-error { font-size: 12.5px; color: var(--red); min-height: 16px; margin: -2px 0 2px; line-height: 1.4; }
     .auth-hint { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 16px; line-height: 1.5; }
+
+    /* --- Chat financiero --- */
+    .chat-box { border-radius: var(--r-lg); padding: 14px; height: 58vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; scroll-behavior: smooth; }
+    .chat-msg { max-width: 82%; padding: 10px 14px; border-radius: var(--r-lg); font-size: 14px; line-height: 1.45; word-wrap: break-word; }
+    .chat-msg.user { align-self: flex-end; background: rgba(5,150,105,0.16); color: var(--text-1); border-bottom-right-radius: 4px; }
+    .chat-msg.bot { align-self: flex-start; background: var(--surface-2); color: var(--text-1); border-bottom-left-radius: 4px; }
+    .chat-input-row { display: flex; gap: 8px; }
+    .chat-input-row input {
+      flex: 1; padding: 12px 16px;
+      background: var(--surface-input);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      backdrop-filter: blur(14px) saturate(160%);
+      border: 1px solid var(--border-strong); border-radius: var(--r-pill);
+      color: var(--text-1); font-size: 15px; font-family: inherit;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.25);
+    }
+    .chat-input-row input:focus { outline: none; border-color: var(--emerald); box-shadow: 0 0 0 3px rgba(5,150,105,0.15), inset 0 1px 1px rgba(255,255,255,0.25); }
+    .chat-send-btn { width: auto; padding: 12px 20px; border-radius: var(--r-pill); flex-shrink: 0; }
+    .chat-suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .chat-chip { padding: 7px 12px; background: var(--surface-2); border: 1px solid var(--border-soft); border-radius: var(--r-pill); font-size: 12px; color: var(--text-2); cursor: pointer; font-family: inherit; touch-action: manipulation; }
+    .chat-chip:hover { color: var(--emerald); border-color: var(--emerald); }
   </style>
 </head>
 <body>
@@ -597,6 +616,21 @@
       <div class="logro-grid" id="logrosGrid"></div>
       <div style="height:8px"></div>
     </div>
+    <div class="tab" id="sec-chat">
+      <div class="sec-label" style="margin-top:20px">Asistente financiero</div>
+      <p style="font-size:13px;color:var(--text-3);margin-bottom:14px">Preguntale por tu saldo, tus gastos, tu presupuesto o tus metas.</p>
+      <div class="chat-suggestions">
+        <button class="chat-chip" onclick="preguntarChat('¿Cómo vengo este mes?')">¿Cómo vengo este mes?</button>
+        <button class="chat-chip" onclick="preguntarChat('¿En qué gasto más?')">¿En qué gasto más?</button>
+        <button class="chat-chip" onclick="preguntarChat('Dame consejos para ahorrar')">Consejos para ahorrar</button>
+      </div>
+      <div class="chat-box glass" id="chatBox"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="Escribí tu consulta..." autocomplete="off">
+        <button class="btn-primary chat-send-btn" onclick="enviarMensajeChat()">Enviar</button>
+      </div>
+      <div style="height:8px"></div>
+    </div>
   </div>
   <nav class="bottom-nav" id="bottomNav">
     <div class="nav-indicator" id="navIndicator"></div>
@@ -605,6 +639,7 @@
     <button class="nav-btn" onclick="cambiarTab('presupuesto',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.8" fill="currentColor" stroke="none"/></svg></span>Presupuesto</button>
     <button class="nav-btn" onclick="cambiarTab('metas',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L12 16.9 6.4 20l1.4-6.2-4.8-4.3 6.4-.6L12 3z"/></svg></span>Metas</button>
     <button class="nav-btn" onclick="cambiarTab('logros',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span>Logros</button>
+    <button class="nav-btn" onclick="cambiarTab('chat',this)"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>Chat</button>
   </nav>
   <div class="overlay" id="modalPresupuesto"><div class="modal-sheet"><div class="modal-title">Agregar presupuesto</div><div class="modal-btns" style="margin-bottom:16px"><button class="btn-primary" onclick="guardarPresupuesto()">Guardar</button><button class="btn-secondary" onclick="cerrarModales()">Cancelar</button></div><div class="modal-field field"><label>Categoría</label><select id="budgetCat"></select></div><div class="modal-field field"><label>Límite mensual</label><input type="number" id="budgetMonto" placeholder="0" min="0" inputmode="decimal"></div></div></div>
   <div class="overlay" id="modalMeta"><div class="modal-sheet"><div class="modal-title">Nueva meta</div><div class="modal-btns" style="margin-bottom:16px"><button class="btn-primary" onclick="guardarMeta()">Guardar</button><button class="btn-secondary" onclick="cerrarModales()">Cancelar</button></div><div class="modal-field field"><label>Nombre</label><input type="text" id="metaNombre" placeholder="Ej: Vacaciones, Auto..."></div><div class="form-grid" style="margin-bottom:12px"><div class="field"><label>Objetivo ($)</label><input type="number" id="metaObjetivo" placeholder="0" min="0" inputmode="decimal"></div><div class="field"><label>Ya ahorrado ($)</label><input type="number" id="metaAhorrado" placeholder="0" min="0" inputmode="decimal"></div></div><div class="modal-field field"><label>Ícono</label><select id="metaIcono"><option value="🏖️">🏖️ Vacaciones</option><option value="🚗">🚗 Auto</option><option value="🏠">🏠 Casa</option><option value="📱">📱 Tecnología</option><option value="🎓">🎓 Educación</option><option value="💊">💊 Salud</option><option value="⭐">⭐ Otro</option></select></div></div></div>
@@ -641,6 +676,7 @@
 <script src="firebase-config.js"></script>
 <script src="auth.js"></script>
 <script src="app.js"></script>
+<script src="js/financeChat.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
@@ -664,6 +700,54 @@
   }
   document.addEventListener('click', function(e) {
     if (e.target.classList.contains('overlay')) { resetearModal(); cerrarModales(); }
+  });
+
+  // ================= Chat financiero: UI =================
+  function agregarBurbujaChat(texto, tipo) {
+    var box = document.getElementById('chatBox');
+    if (!box) return;
+    var div = document.createElement('div');
+    div.className = 'chat-msg ' + tipo;
+    div.innerHTML = String(texto).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function enviarMensajeChat() {
+    var input = document.getElementById('chatInput');
+    if (!input) return;
+    var msg = input.value.trim();
+    if (!msg) return;
+    agregarBurbujaChat(msg, 'user');
+    input.value = '';
+    setTimeout(function() {
+      try {
+        var resp = window.FinanceChatApp.getBotResponse(msg);
+        agregarBurbujaChat(resp.text, 'bot');
+      } catch (err) {
+        agregarBurbujaChat('Uy, tuve un problema para responder. Probá de nuevo en un toque. 🙏', 'bot');
+        console.error(err);
+      }
+    }, 300);
+  }
+
+  function preguntarChat(texto) {
+    var input = document.getElementById('chatInput');
+    if (input) input.value = texto;
+    enviarMensajeChat();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var input = document.getElementById('chatInput');
+    if (input) {
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') enviarMensajeChat();
+      });
+    }
+    var box = document.getElementById('chatBox');
+    if (box && box.children.length === 0) {
+      agregarBurbujaChat('¡Hola! Preguntame por tu saldo, tus gastos, tu presupuesto o tus metas de ahorro. 💬', 'bot');
+    }
   });
 </script>
 </body>
