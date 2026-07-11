@@ -1,4 +1,4 @@
-// ==========================================================================
+/ ==========================================================================
 // FINANCE CHAT — "el Nutrio de las finanzas" para Alkaranta
 // Mismo tono, mismas mañas (lunfardo, humor, che), pero la inteligencia
 // ahora es 100% financiera: lee tus propios movimientos, presupuestos y
@@ -612,7 +612,7 @@ window.FinanceChatApp = {
 // Para que aparezca como una pestaña de chat en tu app, necesitás:
 //
 // 1. Un botón más en tu #bottomNav (junto a Inicio/Movimientos/etc.) que
-//    llame a cambiarTab('chat', this).
+//    llame a cambiarTab('chat', this). mmm
 // 2. Una sección nueva <div class="tab" id="sec-chat"> con el scroll de
 //    mensajes y el input, en el mismo estilo "glass" que ya usás.
 // 3. Un par de funciones de UI (equivalentes a UI.sendChat() de Nutrio)
@@ -622,4 +622,4 @@ window.FinanceChatApp = {
 // No tengo tu index.html/CSS todavía (colores --emerald/--red, clase
 // .glass, cómo está armado el "blob" del bottomNav), así que preferí
 // dejarte el cerebro ya funcionando y pedirte esos archivos para
-// terminar de pegar la parte visual sin romperte el diseño actual.
+// terminar de pegar la parte visual sin
