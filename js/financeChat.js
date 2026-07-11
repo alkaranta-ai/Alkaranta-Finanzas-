@@ -1,4 +1,4 @@
-/ ==========================================================================
+======================================================================
 // FINANCE CHAT — "el Nutrio de las finanzas" para Alkaranta
 // Mismo tono, mismas mañas (lunfardo, humor, che), pero la inteligencia
 // ahora es 100% financiera: lee tus propios movimientos, presupuestos y
