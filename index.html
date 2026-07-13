@@ -470,9 +470,22 @@
     }
     .chat-input-row input:focus { outline: none; border-color: var(--emerald); box-shadow: 0 0 0 3px rgba(5,150,105,0.15), inset 0 1px 1px rgba(255,255,255,0.25); }
     .chat-send-btn { width: auto; padding: 12px 20px; border-radius: var(--r-pill); flex-shrink: 0; }
-    .chat-suggestions { display: none; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .chat-suggestions {
+      display: none; flex-direction: column; gap: 12px;
+      margin-bottom: 10px; max-height: 44vh; overflow-y: auto;
+      padding: 12px; border-radius: var(--r-lg);
+      background: var(--surface-2); border: 1px solid var(--border-soft);
+    }
     .chat-suggestions.open { display: flex; }
-    .chat-chip { padding: 7px 12px; background: var(--surface-2); border: 1px solid var(--border-soft); border-radius: var(--r-pill); font-size: 12px; color: var(--text-2); cursor: pointer; font-family: inherit; touch-action: manipulation; }
+    .chat-suggest-group-title {
+      display: block; width: 100%; text-align: left; background: none; border: none;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-2); padding: 2px 0 6px; cursor: pointer; font-family: inherit;
+      touch-action: manipulation;
+    }
+    .chat-suggest-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chat-suggest-row.collapsed { display: none; }
+    .chat-chip { padding: 7px 12px; background: var(--surface-input); border: 1px solid var(--border-soft); border-radius: var(--r-pill); font-size: 12px; color: var(--text-2); cursor: pointer; font-family: inherit; touch-action: manipulation; }
     .chat-chip:hover { color: var(--emerald); border-color: var(--emerald); }
     .chat-toolbar { display: flex; justify-content: flex-start; margin-top: 20px; margin-bottom: 8px; }
     .chat-suggest-btn {
@@ -636,12 +649,46 @@
       </div>
       <div class="chat-box glass" id="chatBox"></div>
       <div class="chat-suggestions" id="chatSuggestions">
-        <button class="chat-chip" onclick="preguntarChat('¿Cómo vengo este mes?')">¿Cómo vengo este mes?</button>
-        <button class="chat-chip" onclick="preguntarChat('¿En qué gasto más?')">¿En qué gasto más?</button>
-        <button class="chat-chip" onclick="preguntarChat('¿Cómo van mis presupuestos?')">Presupuestos</button>
-        <button class="chat-chip" onclick="preguntarChat('¿Cómo van mis metas?')">Metas</button>
-        <button class="chat-chip" onclick="preguntarChat('¿Tengo algún gasto hormiga?')">Gastos hormiga</button>
-        <button class="chat-chip" onclick="preguntarChat('Dame consejos para ahorrar')">Consejos para ahorrar</button>
+        <div class="chat-suggest-group">
+          <button class="chat-suggest-group-title" onclick="toggleChatGroup(this)">Tu plata ▾</button>
+          <div class="chat-suggest-row">
+            <button class="chat-chip" onclick="preguntarChat('¿Cómo vengo este mes?')">¿Cómo vengo este mes?</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Gasté más que el mes pasado?')">Vs. mes pasado</button>
+            <button class="chat-chip" onclick="preguntarChat('¿En qué gasto más?')">¿En qué gasto más?</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Tengo algún gasto hormiga?')">Gastos hormiga</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Cómo van mis presupuestos?')">Presupuestos</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Cómo van mis metas?')">Metas</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Cuál es mi tasa de ahorro?')">Tasa de ahorro</button>
+          </div>
+        </div>
+        <div class="chat-suggest-group">
+          <button class="chat-suggest-group-title" onclick="toggleChatGroup(this)">Temas financieros ▾</button>
+          <div class="chat-suggest-row">
+            <button class="chat-chip" onclick="preguntarChat('Tengo deudas, ¿qué hago?')">Deudas / tarjeta</button>
+            <button class="chat-chip" onclick="preguntarChat('Ayudame con el fondo de emergencia')">Fondo de emergencia</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Cómo consigo ingresos extra?')">Ingresos extra</button>
+            <button class="chat-chip" onclick="preguntarChat('Tengo ingresos irregulares, soy freelance')">Freelance</button>
+            <button class="chat-chip" onclick="preguntarChat('Tips sobre alquiler e impuestos')">Alquiler / impuestos</button>
+            <button class="chat-chip" onclick="preguntarChat('Quiero ahorrar para vacaciones')">Vacaciones</button>
+            <button class="chat-chip" onclick="preguntarChat('Cobré el aguinaldo, ¿qué hago?')">Sueldo / aguinaldo</button>
+            <button class="chat-chip" onclick="preguntarChat('Tips para gastos compartidos con mi pareja')">Gastos compartidos</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Dónde conviene invertir mis ahorros?')">Inversiones</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Qué pasa con la inflación?')">Inflación / dólar</button>
+            <button class="chat-chip" onclick="preguntarChat('Diferencia entre modo personal y laboral')">Personal vs. laboral</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Cómo funcionan los movimientos recurrentes?')">Recurrentes</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Cómo exporto mis movimientos?')">Exportar CSV</button>
+          </div>
+        </div>
+        <div class="chat-suggest-group">
+          <button class="chat-suggest-group-title" onclick="toggleChatGroup(this)">Charla ▾</button>
+          <div class="chat-suggest-row">
+            <button class="chat-chip" onclick="preguntarChat('Dame consejos para ahorrar')">Consejos para ahorrar</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Qué podés hacer?')">¿Qué podés hacer?</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Cómo funcionás?')">¿Cómo funcionás?</button>
+            <button class="chat-chip" onclick="preguntarChat('¿Quién sos?')">¿Quién sos?</button>
+            <button class="chat-chip" onclick="preguntarChat('Contame un chiste')">Contame un chiste</button>
+          </div>
+        </div>
       </div>
       <div class="chat-input-row">
         <input type="text" id="chatInput" placeholder="Escribí tu consulta..." autocomplete="off">
@@ -768,6 +815,12 @@
     }
   }
 
+  function toggleChatGroup(btn) {
+    var row = btn.nextElementSibling;
+    if (!row) return;
+    row.classList.toggle('collapsed');
+  }
+
   function toggleChatSuggestions() {
     var panel = document.getElementById('chatSuggestions');
     var btn = document.getElementById('chatSuggestBtn');
@@ -802,3 +855,4 @@
 </script>
 </body>
 </html>
+
