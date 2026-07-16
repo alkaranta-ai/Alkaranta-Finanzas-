@@ -217,7 +217,8 @@ function irATabDesdeMenu(tab) {
 
 function compartirPorWhatsapp() {
   cerrarMenuMas();
-  var texto = 'Estoy usando Alkaranta Finanzas para controlar mis ingresos y gastos. ¡Probala! ' + URL_APP_FIJA;
+  var urlConParametro = URL_APP_FIJA + '?ref=whatsapp';
+  var texto = 'Estoy usando Alkaranta Finanzas para controlar mis ingresos y gastos. ¡Probala! ' + urlConParametro;
   var url = 'https://wa.me/?text=' + encodeURIComponent(texto);
   window.open(url, '_blank');
 }
