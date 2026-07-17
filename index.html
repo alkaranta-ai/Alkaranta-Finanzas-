@@ -502,11 +502,15 @@
       min-height: 0; height: auto;
       z-index: 20;
     }
-    .chat-box { border-radius: var(--r-lg); padding: 14px; flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; scroll-behavior: smooth; }
+    .chat-box { border-radius: var(--r-lg); padding: 14px; flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; scroll-behavior: smooth; }
     .chat-input-row { flex: 0 0 auto; padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
-    .chat-msg { max-width: 82%; padding: 10px 14px; border-radius: var(--r-lg); font-size: 14px; line-height: 1.45; word-wrap: break-word; }
-    .chat-msg.user { align-self: flex-end; background: rgba(5,150,105,0.16); color: var(--text-1); border-bottom-right-radius: 4px; }
-    .chat-msg.bot { align-self: flex-start; background: var(--surface-2); color: var(--text-1); border-bottom-left-radius: 4px; }
+    .chat-row { display: flex; align-items: flex-end; gap: 8px; max-width: 88%; }
+    .chat-row.bot { align-self: flex-start; }
+    .chat-row.user { align-self: flex-end; flex-direction: row-reverse; }
+    .chat-avatar { width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%; }
+    .chat-msg { max-width: 100%; padding: 10px 14px; border-radius: var(--r-lg); font-size: 14px; line-height: 1.45; word-wrap: break-word; }
+    .chat-msg.user { background: rgba(5,150,105,0.16); color: var(--text-1); border-bottom-right-radius: 4px; }
+    .chat-msg.bot { background: var(--surface-2); color: var(--text-1); border-bottom-left-radius: 4px; }
     .chat-input-row { display: flex; gap: 8px; }
     .chat-input-row input {
       flex: 1; padding: 12px 16px;
@@ -546,6 +550,11 @@
     }
     .chat-suggest-btn:active { transform: scale(0.9); }
     .chat-suggest-btn.active { background: rgba(5,150,105,0.16); border-color: rgba(5,150,105,0.4); }
+
+    /* --- Avatares del chat: carita simple, sin robot --- */
+    .avatar-face-bot { filter: drop-shadow(0 2px 4px rgba(20,20,25,0.18)); }
+    .avatar-face-user { filter: drop-shadow(0 2px 4px rgba(20,20,25,0.18)); }
+    .avatar-glow-bot { filter: blur(3px); opacity: 0.55; }
   </style>
 </head>
 <body>
@@ -940,6 +949,32 @@
     });
   }
 
+  // Genera la carita del avatar como SVG inline. 'bot' = emerald con aura,
+  // 'user' = tono oscuro sin aura, para distinguirse a simple vista.
+  function avatarSVG(tipo) {
+    if (tipo === 'user') {
+      return '<svg class="chat-avatar avatar-face-user" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">' +
+        '<defs><radialGradient id="gradUser" cx="35%" cy="30%" r="75%">' +
+        '<stop offset="0%" stop-color="#3a3a5c"/><stop offset="100%" stop-color="#1a1a2e"/>' +
+        '</radialGradient></defs>' +
+        '<circle cx="20" cy="20" r="18" fill="url(#gradUser)"/>' +
+        '<circle cx="14" cy="19" r="2" fill="#fff" opacity="0.92"/>' +
+        '<circle cx="26" cy="19" r="2" fill="#fff" opacity="0.92"/>' +
+        '<path d="M14 25 Q20 29 26 25" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.92"/>' +
+        '</svg>';
+    }
+    return '<svg class="chat-avatar avatar-face-bot" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><radialGradient id="gradBot" cx="35%" cy="30%" r="75%">' +
+      '<stop offset="0%" stop-color="#6ee7c9"/><stop offset="100%" stop-color="#059669"/>' +
+      '</radialGradient></defs>' +
+      '<circle class="avatar-glow-bot" cx="20" cy="20" r="19" fill="#6ee7c9"/>' +
+      '<circle cx="20" cy="20" r="18" fill="url(#gradBot)"/>' +
+      '<circle cx="14" cy="19" r="2" fill="#fff" opacity="0.95"/>' +
+      '<circle cx="26" cy="19" r="2" fill="#fff" opacity="0.95"/>' +
+      '<path d="M14 24 Q20 29 26 24" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.95"/>' +
+      '</svg>';
+  }
+
   // Pinta una burbuja nueva en el chat. Los mensajes del usuario ('user')
   // se pintan de una, como siempre. Los del bot ('bot') se escriben letra
   // por letra con typeWriterEffectChat. Devuelve una Promise (solo relevante
@@ -947,18 +982,23 @@
   function agregarBurbujaChat(texto, tipo) {
     var box = document.getElementById('chatBox');
     if (!box) return Promise.resolve();
+    var row = document.createElement('div');
+    row.className = 'chat-row ' + tipo;
+    row.innerHTML = avatarSVG(tipo);
     var div = document.createElement('div');
     div.className = 'chat-msg ' + tipo;
     var html = String(texto).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 
     if (tipo !== 'bot') {
       div.innerHTML = html;
-      box.appendChild(div);
+      row.appendChild(div);
+      box.appendChild(row);
       box.scrollTop = box.scrollHeight;
       return Promise.resolve();
     }
 
-    box.appendChild(div);
+    row.appendChild(div);
+    box.appendChild(row);
     box.scrollTop = box.scrollHeight;
     return typeWriterEffectChat(div, html, function () {
       box.scrollTop = box.scrollHeight;
@@ -968,12 +1008,16 @@
   function mostrarEscribiendo() {
     var box = document.getElementById('chatBox');
     if (!box) return;
+    var row = document.createElement('div');
+    row.className = 'chat-row bot';
+    row.id = 'escribiendoIndicador';
+    row.innerHTML = avatarSVG('bot');
     var div = document.createElement('div');
     div.className = 'chat-msg bot';
-    div.id = 'escribiendoIndicador';
     div.style.opacity = '0.6';
     div.innerHTML = 'Escribiendo...';
-    box.appendChild(div);
+    row.appendChild(div);
+    box.appendChild(row);
     box.scrollTop = box.scrollHeight;
   }
 
