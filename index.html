@@ -830,12 +830,20 @@
     if (!sec || !sec.classList.contains('active')) return;
     var vv = window.visualViewport;
     if (!vv) return;
+    // En iOS, al enfocar el input, Safari hace scroll del layout viewport
+    // para mostrarlo (aunque el panel sea position:fixed). Eso cambia
+    // vv.offsetTop, y si no corregimos el "top" acá, todo el panel se
+    // desplaza junto con ese scroll. Esta línea es la que faltaba.
+    var topbarH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--topbar-h')) || 0;
+    sec.style.top = (vv.offsetTop + topbarH) + 'px';
     var offset = Math.max(window.innerHeight - vv.height - vv.offsetTop, 0);
     document.documentElement.style.setProperty('--kb-offset', offset + 'px');
     var box = document.getElementById('chatBox');
     if (box) box.scrollTop = box.scrollHeight;
   }
   function resetearChatTeclado() {
+    var sec = document.getElementById('sec-chat');
+    if (sec) sec.style.top = '';
     document.documentElement.style.setProperty('--kb-offset', '0px');
   }
   if (window.visualViewport) {
